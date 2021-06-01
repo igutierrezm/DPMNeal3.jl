@@ -1,0 +1,13 @@
+name = "DPMNeal3"
+uuid = "af0b21b6-ea01-48a9-a6c6-8ff6351a99f2"
+authors = ["Iván Gutiérrez <ivangutierrez1988@gmail.com> and contributors"]
+version = "0.1.0"
+
+[compat]
+julia = "1.6.1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
