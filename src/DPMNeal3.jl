@@ -4,7 +4,7 @@ module DPMNeal3
 
 using Distributions: Beta, Gamma 
 using Parameters: @unpack
-using Random: randperm!
+using Random: randperm, randperm!
 export GenericBlock, update!
 
 # 2. Types
@@ -20,8 +20,11 @@ struct GenericBlock
     A::Set{Int}     # active clusters
     a0::Float64     # shape parameter in p(α)
     b0::Float64     # rate parameter in p(α)
-    function GenericBlock(rng, N; K0 = 8, a0 = 2, b0 = 4)
+    function GenericBlock(rng, N::Int; K0::Int = 8, a0 = 2.0, b0 = 4.0)
         @assert N >= K0
+        @assert K0 >= 0
+        @assert a0 >= 0
+        @assert b0 >= 0
         K = Ref(K0)
         α = Ref(1.0)
         τ = randperm(rng, N)
