@@ -18,8 +18,8 @@ struct GenericBlock
     n::Vector{Int}  # cluster sizes
     P::Vector{Int}  # passive clusters
     A::Set{Int}     # active clusters
-    a0::Float64     # shape parameter in p(α)
-    b0::Float64     # rate parameter in p(α)
+    a0::Float64     # shape parameter in α's prior
+    b0::Float64     # rate parameter in α's prior
     function GenericBlock(rng, N::Int; K0::Int = 8, a0 = 2.0, b0 = 4.0)
         @assert N >= K0
         @assert K0 >= 0
@@ -39,17 +39,17 @@ end
 # 3. Interface 
 # Any DPM specific block (sb) must implement these functions
 
-function predloglik(sb, gb::GenericBlock, data, i, k)
+function log_pl(sb, gb::GenericBlock, data, i, k)
     # Return log p(y[i] | y[-i], d[-i], d[i] = k)
     error("not implemented")
 end
 
-function update_suffstats!(sb, gb::GenericBlock, data)
+function update_sb!(sb, gb::GenericBlock, data)
     # Recompute the sufficient statistics from scratch
     error("not implemented")
 end
 
-function update_suffstats!(sb, gb::GenericBlock, data, i, k0, k1)
+function update_sb!(sb, gb::GenericBlock, data, i, k0, k1)
     # Recompute the sufficient statistics after `d[i]` changes from `k0` to `k1`
     error("not implemented")
 end
@@ -63,20 +63,22 @@ end
 
 function update_d!(rng, sb, gb::GenericBlock, data)
     @unpack A, P, d, n, τ, α = gb
-    update_suffstats!(sb, gb, data)
+    update_sb!(sb, gb, data)
 
     for i in randperm!(rng, τ)
         d0 = d[i]
         d1 = P[end]
-        p1 = predloglik(sb, gb, data, i, d1) + log(α[]) - log(-log(rand(rng)))
+        p1 = log_pl(sb, gb, data, i, d1) 
+        p1 += log(α[]) 
+        p1 -= log(-log(rand(rng)))
         for k in A
-            p = predloglik(sb, gb, data, i, k) 
+            p = log_pl(sb, gb, data, i, k) 
             p += log(n[k] - (d0 == k))
             p -= log(-log(rand(rng)))
             p > p1 && (d1 = k; p1 = p)
         end
         if d1 != d0
-            update_suffstats!(sb, gb, data, i, d0, d1)
+            update_sb!(sb, gb, data, i, d0, d1)
             (n[d0] -= 1) == 0 && (push!(P, d0); pop!(A, d0); K[] -= 1)
             (n[d1] += 1) == 1 && (push!(A, d1); pop!(P, d1); K[] += 1)
             isempty(P) && (push!(n, 0); push!(P, K[] + 1))
@@ -88,7 +90,7 @@ end
 function update_α!(rng, gb::GenericBlock)
     @unpack N, K, α, a0, b0 = gb
     ϕ = rand(rng, Beta(α[] + 1.0, N))
-    ψ = 1.0 / (1.0 + N * (b0 - log(ϕ)) / (a0 + M[] - 1.0))
+    ψ = 1.0 / (1.0 + N * (b0 - log(ϕ)) / (a0 + K[] - 1.0))
     α[] = rand(rng, Gamma(a0 + K[] - (rand(rng) > ψ), 1.0 / (b0 - log(ϕ))))
 end
 
