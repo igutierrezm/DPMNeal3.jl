@@ -33,6 +33,8 @@ end
     rng = MersenneTwister(1)
     gb = GenericBlock(rng, N; K0 = K0)
     DPMNeal3.update_α!(rng, gb)
+    @test gb.α[] < Inf
+    @test gb.α[] > 0
 end
 
 @testset "SpecificBlock" begin
