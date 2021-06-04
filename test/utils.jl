@@ -12,23 +12,23 @@ struct SpecificBlock
     u1::Vector{Vector{Float64}}
     s1::Vector{Vector{Float64}}
     γ::Vector{Float64}
-    function SpecificBlock(G; v0 = 2, r0 = 1, u0 = 0.0, s0 = 1.0)
+    function SpecificBlock(G; v0 = 2.0, r0 = 1.0, u0 = 0.0, s0 = 1.0)
         γ = zeros(G)
-        v1 = [zeros(G)]
-        r1 = [zeros(G)]
-        u1 = [zeros(G)]
-        s1 = [zeros(G)]
+        v1 = [v0 * ones(G)]
+        r1 = [r0 * ones(G)]
+        u1 = [u0 * ones(G)]
+        s1 = [s0 * ones(G)]
         new(G, v0, r0, u0, s0, v1, r1, u1, s1, γ)
     end
 end
 
 function resize!(sb::SpecificBlock, n::Integer)
-    @unpack G, v1, r1, u1, s1 = sb
+    @unpack G, v1, r1, u1, s1, v0, r0, u0, s0 = sb
     while length(v1) < n
-        push!(v1, zeros(G))
-        push!(r1, zeros(G))
-        push!(u1, zeros(G))
-        push!(s1, zeros(G))
+        push!(v1, v0 * ones(G))
+        push!(r1, r0 * ones(G))
+        push!(u1, u0 * ones(G))
+        push!(s1, s0 * ones(G))
     end    
 end
 
@@ -75,28 +75,46 @@ function update_sb!(sb::SpecificBlock, gb::GenericBlock, data, i, k1, k2)
     r1[k1][zi] -= 1
 end
 
-function log_pl(sb::SpecificBlock, gb::GenericBlock, data, i, k)
+function logh(sb, gb::GenericBlock, data, i)
+    @unpack y = data
+    @unpack v0, r0, u0, s0, γ = sb
+    yi = y[i]
+    v1 = v0 + 1
+    r1 = r0 + 1
+    u1 = (r0 * u0 + yi) / r1
+    s1 = s0 + (r1 / r0) * (yi - u1)^2   
+    return (
+        0.5v0 * log(s0) -
+        0.5v1 * log(s1) +
+        loggamma(v1 / 2) -
+        loggamma(v0 / 2) +
+        0.5 * log(r0 / r1) -
+        0.5 * log(π)
+    )        
+end
+
+function logq(sb::SpecificBlock, gb::GenericBlock, data, i, k)
     @unpack y, x = data
     @unpack v1, r1, u1, s1, γ = sb
     @unpack d = gb
     yi = y[i]
     di = d[i]
-    j = iszero(γ[x[i]]) ? x[i] : 1
+    zi = iszero(γ[x[i]]) ? x[i] : 1
 
     if di == k
-        v̄1 = v1[k][j]
-        r̄1 = r1[k][j]
-        ū1 = u1[k][j]
-        s̄1 = s1[k][j]
+        v̄1 = v1[k][zi]
+        r̄1 = r1[k][zi]
+        ū1 = u1[k][zi]
+        s̄1 = s1[k][zi]
         v̄0 = v̄1 - 1
         r̄0 = r̄1 - 1
         ū0 = (r̄1 * ū1 - yi) / r̄0
         s̄0 = s̄1 - (r̄1 / r̄0) * (yi - ū1)^2
     else
-        v̄0 = v1[k][j]
-        r̄0 = r1[k][j]
-        ū0 = u1[k][j]
-        s̄0 = s1[k][j]
+        v̄0 = v1[k][zi]
+        r̄0 = r1[k][zi]
+        ū0 = u1[k][zi]
+        s̄0 = s1[k][zi]
         v̄1 = v̄0 + 1
         r̄1 = r̄0 + 1
         ū1 = (r̄0 * ū0 + yi) / r̄1

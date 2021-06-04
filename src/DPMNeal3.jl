@@ -20,7 +20,7 @@ struct GenericBlock
     A::Set{Int}     # active clusters
     a0::Float64     # shape parameter in α's prior
     b0::Float64     # rate parameter in α's prior
-    function GenericBlock(rng, N::Int; K0::Int = 8, a0 = 2.0, b0 = 4.0)
+    function GenericBlock(rng, N::Int; K0::Int = 1, a0 = 2.0, b0 = 4.0)
         @assert N >= K0
         @assert K0 >= 0
         @assert a0 >= 0
@@ -39,7 +39,12 @@ end
 # 3. Interface 
 # Any DPM specific block (sb) must implement these functions
 
-function log_pl(sb, gb::GenericBlock, data, i, k)
+function logh(sb, gb::GenericBlock, data, i)
+    # Return log h(y[i]) = ∫ p(y[i] | d[-i], d[i] = k ∉ d[-i], θ[k]) dθ[k]
+    error("not implemented")
+end
+
+function logq(sb, gb::GenericBlock, data, i, k)
     # Return log p(y[i] | y[-i], d[-i], d[i] = k)
     error("not implemented")
 end
@@ -64,15 +69,14 @@ end
 function update_d!(rng, sb, gb::GenericBlock, data)
     @unpack A, P, d, n, τ, α = gb
     update_sb!(sb, gb, data)
-
     for i in randperm!(rng, τ)
         d0 = d[i]
         d1 = P[end]
-        p1 = log_pl(sb, gb, data, i, d1) 
+        p1 = logh(sb, gb, data, i) 
         p1 += log(α[]) 
         p1 -= log(-log(rand(rng)))
         for k in A
-            p = log_pl(sb, gb, data, i, k) 
+            p = logq(sb, gb, data, i, k)
             p += log(n[k] - (d0 == k))
             p -= log(-log(rand(rng)))
             p > p1 && (d1 = k; p1 = p)

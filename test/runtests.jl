@@ -45,10 +45,10 @@ end
     @test sb.r0 == 3
     @test sb.u0 == 3.0
     @test sb.s0 == 9.0
-    @test sb.v1 == [zeros(G)]
-    @test sb.r1 == [zeros(G)]
-    @test sb.u1 == [zeros(G)]
-    @test sb.s1 == [zeros(G)]
+    @test sb.v1 == [2 * ones(G)]
+    @test sb.r1 == [3 * ones(G)]
+    @test sb.u1 == [3 * ones(G)]
+    @test sb.s1 == [9 * ones(G)]
     @test sb.γ  == zeros(Int, G)
 end
 
@@ -65,57 +65,76 @@ end
 
 @testset "update_sb! (1)" begin
     rng = MersenneTwister(1)
-    N = 10 # sample size
-    F = 2 # number of factors
-    J = [3, 2] # levels per factor
-    x = [zeros(Int, F) for i in 1:N]
-    for i = 1:N, f = 1:F
-        x[i][f] = rand(1:J[f])
-    end
-    x = StatsBase.denserank(x)
-    y = randn(N)
-    data = MyData(x, y)
-    G = length(unique(x))
-    sb = SpecificBlock(G)
-    gb = GenericBlock(rng, N)
+    data = MyData([1], [1.0])
+    v0, r0, u0, s0 = 1.0, 1.0, 0.0, 1.0
+    sb = SpecificBlock(1; v0, r0, u0, s0)
+    gb = GenericBlock(rng, 1)
     update_sb!(sb, gb, data)
+    @test sb.v1[1][1] ≈ 2.0
+    @test sb.v1[2][1] ≈ 1.0
+    @test sb.r1[1][1] ≈ 2.0
+    @test sb.r1[2][1] ≈ 1.0
+    @test sb.u1[1][1] ≈ 0.5
+    @test sb.u1[2][1] ≈ 0.0
+    @test sb.s1[1][1] ≈ 1.5
+    @test sb.s1[2][1] ≈ 1.0
 end
 
 @testset "update_sb! (2)" begin
     rng = MersenneTwister(1)
-    N = 10 # sample size
-    F = 2 # number of factors
-    J = [3, 2] # levels per factor
-    x = [zeros(Int, F) for i in 1:N]
-    for i = 1:N, f = 1:F
-        x[i][f] = rand(1:J[f])
-    end
-    x = StatsBase.denserank(x)
-    y = randn(N)
-    data = MyData(x, y)
-    G = length(unique(x))
-    sb = SpecificBlock(G)
-    gb = GenericBlock(rng, N)
+    data = MyData([1], [1.0])
+    v0, r0, u0, s0 = 1.0, 1.0, 0.0, 1.0
+    sb = SpecificBlock(1; v0, r0, u0, s0)
+    gb = GenericBlock(rng, 1)
     update_sb!(sb, gb, data)
     update_sb!(sb, gb, data, 1, 1, 2)
+    @test sb.v1[1][1] ≈ 1.0
+    @test sb.v1[2][1] ≈ 2.0
+    @test sb.r1[1][1] ≈ 1.0
+    @test sb.r1[2][1] ≈ 2.0
+    @test sb.u1[1][1] ≈ 0.0
+    @test sb.u1[2][1] ≈ 0.5
+    @test sb.s1[1][1] ≈ 1.0
+    @test sb.s1[2][1] ≈ 1.5
 end
 
-@testset "log_pl" begin
+@testset "logh" begin
     rng = MersenneTwister(1)
-    N = 10 # sample size
-    F = 2 # number of factors
-    J = [3, 2] # levels per factor
-    x = [zeros(Int, F) for i in 1:N]
-    for i = 1:N, f = 1:F
-        x[i][f] = rand(1:J[f])
-    end
-    x = StatsBase.denserank(x)
-    y = randn(N)
-    data = MyData(x, y)
-    G = length(unique(x))
-    sb = SpecificBlock(G)
-    gb = GenericBlock(rng, N)
+    data = MyData([1], [1.0])
+    v0, r0, u0, s0 = 1.0, 1.0, 0.0, 1.0
+    sb = SpecificBlock(1; v0, r0, u0, s0)
+    gb = GenericBlock(rng, 1)
     update_sb!(sb, gb, data)
-    update_sb!(sb, gb, data, 1, 1, 2)
-    log_pl(sb, gb, data, 1, 1)
+    @test logh(sb, gb, data, 1) ≈ (
+        0.5 * 1.0 * log(1.0) -
+        0.5 * 2.0 * log(1.5) +
+        loggamma(2.0 / 2) -
+        loggamma(1.0 / 2) +
+        0.5 * log(1.0 / 2.0) -
+        0.5 * log(π)
+    )
 end
+
+@testset "logq" begin
+    rng = MersenneTwister(1)
+    data = MyData([1, 1], [1.0, 0.0])
+    v0, r0, u0, s0 = 1.0, 1.0, 0.0, 1.0
+    sb = SpecificBlock(1; v0, r0, u0, s0)
+    gb = GenericBlock(rng, 2)
+    update_sb!(sb, gb, data)
+    @test sb.v1[1][1] ≈ 3.0
+    @test sb.r1[1][1] ≈ 3.0
+    @test sb.u1[1][1] ≈ 1/3
+    @test sb.s1[1][1] ≈ 5/3
+
+    @test logq(sb, gb, data, 2, 1) ≈ (
+        0.5 * 2 * log(1.5) -
+        0.5 * 3 * log(5/3) +
+        loggamma(3/2) -
+        loggamma(2/2) +
+        0.5 * log(2/3) -
+        0.5 * log(π)
+    )
+end
+
+# x = StatsBase.denserank(x)
