@@ -75,9 +75,9 @@ function update_sb!(sb::SpecificBlock, gb::GenericBlock, data, i, k1, k2)
     r1[k1][zi] -= 1
 end
 
-function logh(sb, gb::GenericBlock, data, i)
+function logh(sb::SpecificBlock, gb::GenericBlock, data, i)
+    @unpack v0, r0, u0, s0 = sb
     @unpack y = data
-    @unpack v0, r0, u0, s0, γ = sb
     yi = y[i]
     v1 = v0 + 1
     r1 = r0 + 1
@@ -94,8 +94,8 @@ function logh(sb, gb::GenericBlock, data, i)
 end
 
 function logq(sb::SpecificBlock, gb::GenericBlock, data, i, k)
-    @unpack y, x = data
     @unpack v1, r1, u1, s1, γ = sb
+    @unpack y, x = data
     @unpack d = gb
     yi = y[i]
     di = d[i]

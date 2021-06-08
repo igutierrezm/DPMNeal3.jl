@@ -2,6 +2,7 @@ using Parameters
 using DPMNeal3
 using Random
 using Test
+import DPMNeal3: update_sb!, logh, logq
 include("utils.jl")
 
 struct MyData
@@ -23,7 +24,7 @@ end
     @test unique(gb.d) == collect(1:K0)
     @test length(gb.d) == N
     @test gb.A == Set(1:K0)
-    @test gb.P == [K0 + 1]
+    @test gb.P == Set(K0 + 1)
     @test gb.K[] == K0
 end
 
@@ -135,6 +136,15 @@ end
         0.5 * log(2/3) -
         0.5 * log(π)
     )
+end
+
+@testset "update!" begin
+    rng = MersenneTwister(1)
+    data = MyData([1, 1], [1.0, 0.0])
+    v0, r0, u0, s0 = 1.0, 1.0, 0.0, 1.0
+    sb = SpecificBlock(1; v0, r0, u0, s0)
+    gb = GenericBlock(rng, 2)
+    update!(rng, sb, gb, data)
 end
 
 # x = StatsBase.denserank(x)

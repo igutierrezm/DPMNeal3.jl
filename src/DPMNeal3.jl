@@ -16,7 +16,7 @@ struct GenericBlock
     τ::Vector{Int}  # ordering of the observations
     d::Vector{Int}  # cluster labels
     n::Vector{Int}  # cluster sizes
-    P::Vector{Int}  # passive clusters
+    P::Set{Int}     # passive clusters
     A::Set{Int}     # active clusters
     a0::Float64     # shape parameter in α's prior
     b0::Float64     # rate parameter in α's prior
@@ -30,7 +30,7 @@ struct GenericBlock
         τ = randperm(rng, N)
         d = rand(rng, 1:K0, N); d[1:K0] = 1:K0;
         n = [sum(d .== k) for k in 1:(K0 + 1)]
-        P = [K0 + 1]
+        P = Set(K0 + 1)
         A = Set(1:K0)
         new(N, K, α, τ, d, n, P, A, a0, b0)
     end
@@ -40,7 +40,7 @@ end
 # Any DPM specific block (sb) must implement these functions
 
 function logh(sb, gb::GenericBlock, data, i)
-    # Return log h(y[i]) = ∫ p(y[i] | d[-i], d[i] = k ∉ d[-i], θ[k]) dθ[k]
+    # Return the log of h(y[i]) := ∫ q(y[i] | θ[1]) g(θ[1]) dθ[1]
     error("not implemented")
 end
 
@@ -50,30 +50,30 @@ function logq(sb, gb::GenericBlock, data, i, k)
 end
 
 function update_sb!(sb, gb::GenericBlock, data)
-    # Recompute the sufficient statistics from scratch
+    # Update sb from scratch
     error("not implemented")
 end
 
 function update_sb!(sb, gb::GenericBlock, data, i, k0, k1)
-    # Recompute the sufficient statistics after `d[i]` changes from `k0` to `k1`
+    # Update sb after `d[i]` changes from `k0` to `k1`
     error("not implemented")
 end
 
 # 4. Gibbs update logic
 
 function update!(rng, sb, gb::GenericBlock, data)
-    update_d!(rng, sb, gb, data)
-    update_α!(rng, gb)
+    update_d!(rng, sb, gb, data) # update the cluster labels
+    update_α!(rng, gb) # update α
 end
 
 function update_d!(rng, sb, gb::GenericBlock, data)
-    @unpack A, P, d, n, τ, α = gb
+    @unpack K, A, P, d, n, τ, α = gb
     update_sb!(sb, gb, data)
     for i in randperm!(rng, τ)
         d0 = d[i]
-        d1 = P[end]
-        p1 = logh(sb, gb, data, i) 
-        p1 += log(α[]) 
+        d1 = first(P)
+        p1 = log(α[]) 
+        p1 += logh(sb, gb, data, i)
         p1 -= log(-log(rand(rng)))
         for k in A
             p = logq(sb, gb, data, i, k)
