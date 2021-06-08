@@ -1,6 +1,3 @@
-using StatsBase
-using SpecialFunctions
-
 struct SpecificBlock
     G::Int
     v0::Float64
