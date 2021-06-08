@@ -1,14 +1,18 @@
 module DPMNeal3
 
-# 1. Imports/Exports
-
 using Distributions: Beta, Gamma 
 using Parameters: @unpack
 using Random: randperm, randperm!
 export GenericBlock, update!
 
-# 2. Types
+"""
+    GenericBlock(rng::AbstractRNG, N::Int; K0::Int = 1, a0 = 2.0, b0 = 4.0)
 
+Initialize the generic block of a DPM, where `N` is the sample size, `K0` is 
+the initial number of clusters, and (`a0`, `b0`) determine the prior 
+distribution of the DP mass parameter, a `Gamma(a0, 1 / b0)` 
+distribution. 
+"""
 struct GenericBlock
     N::Int          # sample size
     K::Ref{Int}     # number of clusters
@@ -39,6 +43,11 @@ end
 # 3. Interface 
 # Any DPM specific block (sb) must implement these functions
 
+"""
+    logh(sb, gb::GenericBlock, data, i)
+
+Return the log of ``h(y_i) := \\int q(y_i | \\theta_1) g(\\theta_1) d\\theta_1``
+"""
 function logh(sb, gb::GenericBlock, data, i)
     # Return the log of h(y[i]) := ∫ q(y[i] | θ[1]) g(θ[1]) dθ[1]
     error("not implemented")
