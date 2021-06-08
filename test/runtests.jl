@@ -2,6 +2,8 @@ using Parameters
 using DPMNeal3
 using Random
 using Test
+using StatsBase
+using SpecialFunctions
 import DPMNeal3: update_sb!, logh, logq
 include("utils.jl")
 
@@ -147,4 +149,20 @@ end
     update!(rng, sb, gb, data)
 end
 
-# x = StatsBase.denserank(x)
+@testset "final_example!" begin
+    rng = MersenneTwister(1)
+    N, F = 1000, 3
+    y = randn(rng, N)
+    x = [rand(rng, 1:3, F) for _ in 1:N]
+    x = StatsBase.denserank(x)
+    G = length(unique(x))
+    data = MyData(x, y)
+    sb = SpecificBlock(G)
+    gb = GenericBlock(rng, N)
+    update!(rng, sb, gb, data)
+    # for i = 1:20
+        @time update_α!(rng, gb)
+        @time update_α!(rng, gb)
+    # end
+end
+
