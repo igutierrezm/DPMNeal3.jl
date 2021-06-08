@@ -160,9 +160,4 @@ end
     sb = SpecificBlock(G)
     gb = GenericBlock(rng, N)
     update!(rng, sb, gb, data)
-    # for i = 1:20
-        @time update_α!(rng, gb)
-        @time update_α!(rng, gb)
-    # end
 end
-
