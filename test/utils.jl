@@ -8,14 +8,16 @@ struct SpecificBlock
     r1::Vector{Vector{Float64}}
     u1::Vector{Vector{Float64}}
     s1::Vector{Vector{Float64}}
-    γ::Vector{Float64}
+    πγ::Vector{Float64}
+    γ::Vector{Bool}
     function SpecificBlock(G; v0 = 2.0, r0 = 1.0, u0 = 0.0, s0 = 1.0)
-        γ = zeros(G)
+        γ = ones(Bool, G)
         v1 = [v0 * ones(G)]
         r1 = [r0 * ones(G)]
         u1 = [u0 * ones(G)]
         s1 = [s0 * ones(G)]
-        new(G, v0, r0, u0, s0, v1, r1, u1, s1, γ)
+        πγ = ones(G) / G
+        new(G, v0, r0, u0, s0, v1, r1, u1, s1, πγ, γ)
     end
 end
 
@@ -113,3 +115,46 @@ function logpredlik(sb::SpecificBlock, gb::GenericBlock, data, i, k)
         )        
     end
 end
+
+function logmglik(sb::SpecificBlock, j, k)
+    @unpack v0, v1, r0, r1, s0, s1 = sb
+    return(
+        0.5v0 * log(s0) -
+        0.5v1[k][j] * log(s1[k][j]) +
+        loggamma(v1[k][j] / 2) -
+        loggamma(v0 / 2) +
+        0.5 * log(r0 / r1[k][j]) -
+        0.5 * log(π) * (r1[k][j] - r0)
+    )
+end
+
+function update_γ!(rng, sb::SpecificBlock, gb::GenericBlock, data)
+    @unpack πγ, γ = sb
+    @unpack A = gb
+
+    # Resample γ[g], given the other γ's
+    for g = 2:length(γ)
+        # log-odds (numerator)
+        γ[g] = 1
+        update_sb!(sb, gb, data)
+        log_num = log(πγ[sum(γ)])
+        for k ∈ A, j ∈ (1, g)
+            log_num += logmglik(sb, j, k)
+        end
+
+        # log-odds (denominator)
+        γ[g] = 0
+        update_sb!(sb, gb, data)
+        log_den = log(πγ[sum(γ)])
+        for k ∈ A, j ∈ (1)
+            log_den += logmglik(sb, j, k)
+            # println(logmglik(sb, j, k))
+        end
+
+        # log-odds and new γ[g]
+        log_odds = log_num - log_den
+        γ[g] = rand(rng) <= 1 / (1 + exp(-log_odds))
+    end
+end
+
+# TODO: Revisar por qué logmglik vale 0.0 en ocasiones

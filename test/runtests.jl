@@ -3,6 +3,7 @@ using DPMNeal3
 using Random
 using Test
 using StatsBase
+using Statistics
 using SpecialFunctions
 import DPMNeal3: update_sb!, logpredlik
 include("utils.jl")
@@ -52,7 +53,7 @@ end
     @test sb.r1 == [3 * ones(G)]
     @test sb.u1 == [3 * ones(G)]
     @test sb.s1 == [9 * ones(G)]
-    @test sb.γ  == zeros(Int, G)
+    @test sb.γ  == ones(Bool, G)
 end
 
 @testset "resize!" begin
@@ -140,7 +141,7 @@ end
     )
 end
 
-@testset "update!" begin
+@testset "update! (1)" begin
     rng = MersenneTwister(1)
     data = MyData([1, 1], [1.0, 0.0])
     v0, r0, u0, s0 = 1.0, 1.0, 0.0, 1.0
@@ -149,7 +150,7 @@ end
     update!(rng, sb, gb, data)
 end
 
-@testset "final_example!" begin
+@testset "update! (2)" begin
     rng = MersenneTwister(1)
     N, F = 1000, 3
     y = randn(rng, N)
@@ -160,4 +161,42 @@ end
     sb = SpecificBlock(G)
     gb = GenericBlock(rng, N)
     update!(rng, sb, gb, data)
+end
+
+@testset "update_γ!" begin
+    rng = MersenneTwister(1)
+    N, F = 1000, 1
+    y = randn(rng, N)
+    x = [rand(rng, 1:3, F) for _ in 1:N]
+    x = StatsBase.denserank(x)
+    G = length(unique(x))
+    data = MyData(x, y)
+    sb = SpecificBlock(G)
+    gb = GenericBlock(rng, N)
+    update!(rng, sb, gb, data)
+    update_γ!(rng, sb, gb, data)
+end
+
+@testset "final_example" begin
+    rng = MersenneTwister(1)
+    N, F = 1000, 1
+    y = randn(rng, N)
+    x = [rand(rng, 1:3, F) for _ in 1:N]
+    x = StatsBase.denserank(x)
+    for i = 1:N
+        if x[i] == 2
+            y[i] += 1.0
+        end
+    end
+    y .= (y .- mean(y)) ./ √var(y)
+    G = length(unique(x))
+    data = MyData(x, y)
+    sb = SpecificBlock(G)
+    gb = GenericBlock(rng, N)
+    γs = [zeros(Bool, G) for _ in 1:1000]
+    for t in 1:1000
+        update!(rng, sb, gb, data)
+        update_γ!(rng, sb, gb, data)
+        γs[t][:] = sb.γ[:]
+    end
 end
