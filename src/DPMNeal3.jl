@@ -40,19 +40,19 @@ struct GenericBlock
     end
 end
 
-"Return the sample size"
+"Return the sample size."
 N(gb::GenericBlock) = gb.N
 
-"Return the current number of cluster"
+"Return the current number of cluster."
 K(gb::GenericBlock) = gb.K[1]
 
-"Return the current number of cluster"
+"Return the current number of cluster."
 α(gb::GenericBlock) = gb.α[1]
 
-"Return the set of active clusters"
+"Return the set of active clusters."
 A(gb::GenericBlock) = gb.A
 
-"Return the set of passive clusters"
+"Return the set of passive clusters."
 P(gb::GenericBlock) = gb.P
 
 # 3. Interface 
@@ -61,7 +61,7 @@ P(gb::GenericBlock) = gb.P
 """
     logpredlik(sb, gb::GenericBlock, data, i, k)
 
-Return the ``log(y_i | y_{-i}, d_i, d_{-i})``. 
+Return ``log(y_i | y_{-i}, d_i = k, d_{-i})``. 
 """
 function logpredlik(sb, gb::GenericBlock, data, i, k)
     # Return log p(y[i] | y[-i], d[-i], d[i] = k)
