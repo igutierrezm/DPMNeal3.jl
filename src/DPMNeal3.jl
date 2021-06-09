@@ -61,8 +61,7 @@ P(gb::GenericBlock) = gb.P
 """
     logpredlik(sb, gb::GenericBlock, data, i, k)
 
-Return the log-predictive likelihood for the `i`th observation, assuming it 
-belongs to `k`th cluster/component.
+Return the ``log(y_i | y_{-i}, d_i, d_{-i})``. 
 """
 function logpredlik(sb, gb::GenericBlock, data, i, k)
     # Return log p(y[i] | y[-i], d[-i], d[i] = k)
