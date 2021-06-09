@@ -46,13 +46,18 @@ end
 """
     logh(sb, gb::GenericBlock, data, i)
 
-Return the log of ``h(y_i) := \\int q(y_i | \\theta_1) g_0(\\theta_1) d\\theta_1``
+Return the log of ``h(y_i) := \\int q(y_i | \\theta) g_0(\\theta) d\\theta``
 """
 function logh(sb, gb::GenericBlock, data, i)
     # Return the log of h(y[i]) := ∫ q(y[i] | θ[1]) g(θ[1]) dθ[1]
     error("not implemented")
 end
 
+"""
+    logq(sb, gb::GenericBlock, data, i)
+
+Return the log of ``q(y_i) := p(y_i | d_i = k, d_{-i})``
+"""
 function logq(sb, gb::GenericBlock, data, i, k)
     # Return log p(y[i] | y[-i], d[-i], d[i] = k)
     error("not implemented")
