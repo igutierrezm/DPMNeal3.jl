@@ -8,10 +8,9 @@ export GenericBlock, update!
 """
     GenericBlock(rng::AbstractRNG, N::Int; K0::Int = 1, a0 = 2.0, b0 = 4.0)
 
-Initialize the generic block of a DPM, where `N` is the sample size, `K0` 
-is the initial number of clusters, and (`a0`, `b0`) determine the prior 
-distribution of the DP mass parameter, a `Gamma(a0, 1 / b0)` 
-distribution. 
+Initialize the generic block of a DPM with `N` observations, `K0` initial 
+clusters and a Gamma prior distribution (with shape `a0` and rate `b0`) 
+for the DP concentration parameter.
 """
 struct GenericBlock
     N::Int             # sample size
@@ -46,7 +45,7 @@ N(gb::GenericBlock) = gb.N
 "Return the current number of cluster."
 K(gb::GenericBlock) = gb.K[1]
 
-"Return the current number of cluster."
+"Return the current DP concentration parameter."
 α(gb::GenericBlock) = gb.α[1]
 
 "Return the set of active clusters."
@@ -61,7 +60,7 @@ P(gb::GenericBlock) = gb.P
 """
     logpredlik(sb, gb::GenericBlock, data, i, k)
 
-Return ``log(y_i | y_{-i}, d_i = k, d_{-i})``. 
+Return ``\\log(y_i | y_{-i}, d_i = k, d_{-i})``. 
 """
 function logpredlik(sb, gb::GenericBlock, data, i, k)
     # Return log p(y[i] | y[-i], d[-i], d[i] = k)
