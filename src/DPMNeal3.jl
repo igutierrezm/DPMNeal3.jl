@@ -87,10 +87,10 @@ function update_d!(rng, sb, gb::GenericBlock, data)
             p > p1 && (d1 = k; p1 = p)
         end
         if d1 != d0
-            update_sb!(sb, gb, data, i, d0, d1)
             (n[d0] -= 1) == 0 && (push!(P, d0); pop!(A, d0); K[] -= 1)
             (n[d1] += 1) == 1 && (push!(A, d1); pop!(P, d1); K[] += 1)
             isempty(P) && (push!(n, 0); push!(P, K[] + 1))
+            update_sb!(sb, gb, data, i, d0, d1)
             d[i] = d1
         end
     end
