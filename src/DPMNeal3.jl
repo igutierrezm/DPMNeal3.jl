@@ -46,7 +46,8 @@ end
 """
     logh(sb, gb::GenericBlock, data, i)
 
-Return the log of ``h(y_i) := \\int q(y_i | \\theta) g_0(\\theta) d\\theta``
+Return the log-predictive likelihood for the `i`th observation, assuming it 
+belongs to an empty cluster.
 """
 function logh(sb, gb::GenericBlock, data, i)
     # Return the log of h(y[i]) := ∫ q(y[i] | θ[1]) g(θ[1]) dθ[1]
@@ -54,9 +55,10 @@ function logh(sb, gb::GenericBlock, data, i)
 end
 
 """
-    logq(sb, gb::GenericBlock, data, i)
+    logq(sb, gb::GenericBlock, data, i, k)
 
-Return the log of ``q(y_i) := p(y_i | d_i = k, d_{-i})``
+Return the log-predictive likelihood for the `i`th observation, assuming it 
+belongs to a non-empty cluster `k`.
 """
 function logq(sb, gb::GenericBlock, data, i, k)
     # Return log p(y[i] | y[-i], d[-i], d[i] = k)
