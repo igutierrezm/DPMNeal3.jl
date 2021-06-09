@@ -14,23 +14,23 @@ distribution of the DP mass parameter, a `Gamma(a0, 1 / b0)`
 distribution. 
 """
 struct GenericBlock
-    N::Int          # sample size
-    K::Ref{Int}     # number of clusters
-    α::Ref{Float64} # DP mass parameter
-    τ::Vector{Int}  # ordering of the observations
-    d::Vector{Int}  # cluster labels
-    n::Vector{Int}  # cluster sizes
-    P::Set{Int}     # passive clusters
-    A::Set{Int}     # active clusters
-    a0::Float64     # shape parameter in α's prior
-    b0::Float64     # rate parameter in α's prior
+    N::Int             # sample size
+    K::Vector{Int}     # number of clusters
+    α::Vector{Float64} # DP mass parameter
+    τ::Vector{Int}     # ordering of the observations
+    d::Vector{Int}     # cluster labels
+    n::Vector{Int}     # cluster sizes
+    P::Set{Int}        # passive clusters
+    A::Set{Int}        # active clusters
+    a0::Float64        # shape parameter in α's prior
+    b0::Float64        # rate parameter in α's prior
     function GenericBlock(rng, N::Int; K0::Int = 1, a0 = 2.0, b0 = 4.0)
         @assert N >= K0
         @assert K0 >= 0
         @assert a0 >= 0
         @assert b0 >= 0
-        K = Ref(K0)
-        α = Ref(1.0)
+        K = [K0]
+        α = [1.0]
         τ = randperm(rng, N)
         d = rand(rng, 1:K0, N); d[1:K0] = 1:K0;
         n = [sum(d .== k) for k in 1:(K0 + 1)]
@@ -77,7 +77,7 @@ function update_d!(rng, sb, gb::GenericBlock, data)
     for i in randperm!(rng, τ)
         d0 = d[i]
         d1 = first(P)
-        p1 = log(α[]) 
+        p1 = log(α[1]) 
         p1 += logpredlik(sb, gb, data, i, d1)
         p1 -= log(-log(rand(rng)))
         for k in A
@@ -87,20 +87,22 @@ function update_d!(rng, sb, gb::GenericBlock, data)
             p > p1 && (d1 = k; p1 = p)
         end
         if d1 != d0
-            (n[d0] -= 1) == 0 && (push!(P, d0); pop!(A, d0); K[] -= 1)
-            (n[d1] += 1) == 1 && (push!(A, d1); pop!(P, d1); K[] += 1)
-            isempty(P) && (push!(n, 0); push!(P, K[] + 1))
+            (n[d0] -= 1) == 0 && (push!(P, d0); pop!(A, d0); K[1] -= 1)
+            (n[d1] += 1) == 1 && (push!(A, d1); pop!(P, d1); K[1] += 1)
+            isempty(P) && (push!(n, 0); push!(P, K[1] + 1))
             update_sb!(sb, gb, data, i, d0, d1)
             d[i] = d1
         end
     end
+    return nothing
 end
 
 function update_α!(rng, gb::GenericBlock)
     @unpack N, K, α, a0, b0 = gb
-    ϕ = rand(rng, Beta(α[] + 1.0, N))
-    ψ = 1.0 / (1.0 + N * (b0 - log(ϕ)) / (a0 + K[] - 1.0))
-    α[] = rand(rng, Gamma(a0 + K[] - (rand(rng) > ψ), 1.0 / (b0 - log(ϕ))))
+    ϕ = rand(rng, Beta(α[1] + 1.0, N))
+    ψ = 1.0 / (1.0 + N * (b0 - log(ϕ)) / (a0 + K[1] - 1.0))
+    α[1] = rand(rng, Gamma(a0 + K[1] - (rand(rng) > ψ), 1.0 / (b0 - log(ϕ))))
+    return nothing
 end
 
 end # module

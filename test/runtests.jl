@@ -27,7 +27,7 @@ end
     @test length(gb.d) == N
     @test gb.A == Set(1:K0)
     @test gb.P == Set(K0 + 1)
-    @test gb.K[] == K0
+    @test gb.K[1] == K0
 end
 
 @testset "update_α!" begin
@@ -36,8 +36,8 @@ end
     rng = MersenneTwister(1)
     gb = GenericBlock(rng, N; K0 = K0)
     DPMNeal3.update_α!(rng, gb)
-    @test gb.α[] < Inf
-    @test gb.α[] > 0
+    @test gb.α[1] < Inf
+    @test gb.α[1] > 0
 end
 
 @testset "SpecificBlock" begin
