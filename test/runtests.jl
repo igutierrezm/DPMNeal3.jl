@@ -184,19 +184,18 @@ end
     x = [rand(rng, 1:3, F) for _ in 1:N]
     x = StatsBase.denserank(x)
     for i = 1:N
-        if x[i] == 2
-            y[i] += 1.0
+        if x[i] == 3
+            y[i] += 10.0
         end
     end
     y .= (y .- mean(y)) ./ √var(y)
     G = length(unique(x))
     data = MyData(x, y)
     sb = SpecificBlock(G)
-    gb = GenericBlock(rng, N)
-    γs = [zeros(Bool, G) for _ in 1:1000]
-    for t in 1:1000
+    gb = GenericBlock(rng, N; K0 = 1)
+    for t in 1:10
         update!(rng, sb, gb, data)
         update_γ!(rng, sb, gb, data)
-        γs[t][:] = sb.γ[:]
+        println(sb.γ[:])
     end
 end

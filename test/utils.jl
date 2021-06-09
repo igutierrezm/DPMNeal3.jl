@@ -43,7 +43,7 @@ function update_sb!(sb::SpecificBlock, gb::GenericBlock, data)
         s1[k] .= s0
     end
     for i = 1:N
-        zi = iszero(γ[x[i]]) ? x[i] : 1
+        zi = iszero(γ[x[i]]) ? 1 : x[i]
         di = d[i]
         v1[di][zi] += 1
         rm = r1[di][zi] += 1
@@ -57,7 +57,7 @@ function update_sb!(sb::SpecificBlock, gb::GenericBlock, data, i, k1, k2)
     @unpack y, x = data
     @unpack v1, r1, u1, s1, γ = sb
     length(v1) < length(n) && resize!(sb, length(n))
-    zi = iszero(γ[x[i]]) ? x[i] : 1
+    zi = iszero(γ[x[i]]) ? 1 : x[i]
 
     # Modify cluster/group di/k2
     v1[k2][zi] += 1
@@ -80,7 +80,7 @@ function logpredlik(sb::SpecificBlock, gb::GenericBlock, data, i, k)
     @unpack d = gb
     yi = y[i]
     di = d[i]
-    zi = iszero(γ[x[i]]) ? x[i] : 1
+    zi = iszero(γ[x[i]]) ? 1 : x[i]
 
     if di == k
         v̄1 = v1[k][zi]
