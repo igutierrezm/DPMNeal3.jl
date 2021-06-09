@@ -46,7 +46,7 @@ end
 """
     logh(sb, gb::GenericBlock, data, i)
 
-Return the log of ``h(y_i) := \\int q(y_i | \\theta_1) g(\\theta_1) d\\theta_1``
+Return the log of ``h(y_i) := \\int q(y_i | \\theta_1) g_0(\\theta_1) d\\theta_1``
 """
 function logh(sb, gb::GenericBlock, data, i)
     # Return the log of h(y[i]) := ∫ q(y[i] | θ[1]) g(θ[1]) dθ[1]
