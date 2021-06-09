@@ -72,25 +72,7 @@ function update_sb!(sb::SpecificBlock, gb::GenericBlock, data, i, k1, k2)
     r1[k1][zi] -= 1
 end
 
-function logh(sb::SpecificBlock, gb::GenericBlock, data, i)
-    @unpack v0, r0, u0, s0 = sb
-    @unpack y = data
-    yi = y[i]
-    v1 = v0 + 1
-    r1 = r0 + 1
-    u1 = (r0 * u0 + yi) / r1
-    s1 = s0 + (r1 / r0) * (yi - u1)^2   
-    return (
-        0.5v0 * log(s0) -
-        0.5v1 * log(s1) +
-        loggamma(v1 / 2) -
-        loggamma(v0 / 2) +
-        0.5 * log(r0 / r1) -
-        0.5 * log(π)
-    )        
-end
-
-function logq(sb::SpecificBlock, gb::GenericBlock, data, i, k)
+function logpredlik(sb::SpecificBlock, gb::GenericBlock, data, i, k)
     @unpack v1, r1, u1, s1, γ = sb
     @unpack y, x = data
     @unpack d = gb

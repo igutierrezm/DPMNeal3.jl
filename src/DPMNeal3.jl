@@ -44,23 +44,12 @@ end
 # Any DPM specific block (sb) must implement these functions
 
 """
-    logh(sb, gb::GenericBlock, data, i)
+    logpredlik(sb, gb::GenericBlock, data, i, k)
 
 Return the log-predictive likelihood for the `i`th observation, assuming it 
-belongs to an empty cluster.
+belongs to `k`th cluster/component.
 """
-function logh(sb, gb::GenericBlock, data, i)
-    # Return the log of h(y[i]) := ∫ q(y[i] | θ[1]) g(θ[1]) dθ[1]
-    error("not implemented")
-end
-
-"""
-    logq(sb, gb::GenericBlock, data, i, k)
-
-Return the log-predictive likelihood for the `i`th observation, assuming it 
-belongs to a non-empty cluster `k`.
-"""
-function logq(sb, gb::GenericBlock, data, i, k)
+function logpredlik(sb, gb::GenericBlock, data, i, k)
     # Return log p(y[i] | y[-i], d[-i], d[i] = k)
     error("not implemented")
 end
@@ -89,10 +78,10 @@ function update_d!(rng, sb, gb::GenericBlock, data)
         d0 = d[i]
         d1 = first(P)
         p1 = log(α[]) 
-        p1 += logh(sb, gb, data, i)
+        p1 += logpredlik(sb, gb, data, i, d1)
         p1 -= log(-log(rand(rng)))
         for k in A
-            p = logq(sb, gb, data, i, k)
+            p = logpredlik(sb, gb, data, i, k)
             p += log(n[k] - (d0 == k))
             p -= log(-log(rand(rng)))
             p > p1 && (d1 = k; p1 = p)

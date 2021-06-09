@@ -4,7 +4,7 @@ using Random
 using Test
 using StatsBase
 using SpecialFunctions
-import DPMNeal3: update_sb!, logh, logq
+import DPMNeal3: update_sb!, logpredlik
 include("utils.jl")
 
 struct MyData
@@ -101,14 +101,14 @@ end
     @test sb.s1[2][1] ≈ 1.5
 end
 
-@testset "logh" begin
+@testset "logpredlik (empty clusters)" begin
     rng = MersenneTwister(1)
     data = MyData([1], [1.0])
     v0, r0, u0, s0 = 1.0, 1.0, 0.0, 1.0
     sb = SpecificBlock(1; v0, r0, u0, s0)
     gb = GenericBlock(rng, 1)
     update_sb!(sb, gb, data)
-    @test logh(sb, gb, data, 1) ≈ (
+    @test logpredlik(sb, gb, data, 1, first(gb.P)) ≈ (
         0.5 * 1.0 * log(1.0) -
         0.5 * 2.0 * log(1.5) +
         loggamma(2.0 / 2) -
@@ -118,7 +118,7 @@ end
     )
 end
 
-@testset "logq" begin
+@testset "logpredlik (non-empty clusters)" begin
     rng = MersenneTwister(1)
     data = MyData([1, 1], [1.0, 0.0])
     v0, r0, u0, s0 = 1.0, 1.0, 0.0, 1.0
@@ -130,7 +130,7 @@ end
     @test sb.u1[1][1] ≈ 1/3
     @test sb.s1[1][1] ≈ 5/3
 
-    @test logq(sb, gb, data, 2, 1) ≈ (
+    @test logpredlik(sb, gb, data, 2, 1) ≈ (
         0.5 * 2 * log(1.5) -
         0.5 * 3 * log(5/3) +
         loggamma(3/2) -
