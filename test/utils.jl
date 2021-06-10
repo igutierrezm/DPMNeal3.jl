@@ -31,7 +31,7 @@ function resize!(sb::SpecificBlock, n::Integer)
     end    
 end
 
-function update_sb!(sb::SpecificBlock, gb::GenericBlock, data)
+function update_sb!(rng, sb::SpecificBlock, gb::GenericBlock, data)
     @unpack y, x = data
     @unpack N, A, d, n = gb
     @unpack v1, r1, u1, s1, v0, r0, u0, s0, γ = sb
@@ -52,7 +52,7 @@ function update_sb!(sb::SpecificBlock, gb::GenericBlock, data)
     end
 end
 
-function update_sb!(sb::SpecificBlock, gb::GenericBlock, data, i, k1, k2)
+function update_sb!(rng, sb::SpecificBlock, gb::GenericBlock, data, i, k1, k2)
     @unpack n = gb
     @unpack y, x = data
     @unpack v1, r1, u1, s1, γ = sb
@@ -128,33 +128,33 @@ function logmglik(sb::SpecificBlock, j, k)
     )
 end
 
-function update_γ!(rng, sb::SpecificBlock, gb::GenericBlock, data)
-    @unpack πγ, γ = sb
-    @unpack A = gb
+# function update_γ!(rng, sb::SpecificBlock, gb::GenericBlock, data)
+#     @unpack πγ, γ = sb
+#     @unpack A = gb
 
-    # Resample γ[g], given the other γ's
-    for g = 2:length(γ)
-        # log-odds (numerator)
-        γ[g] = 1
-        update_sb!(sb, gb, data)
-        log_num = log(πγ[sum(γ)])
-        for k ∈ A, j ∈ (1, g)
-            log_num += logmglik(sb, j, k)
-        end
+#     # Resample γ[g], given the other γ's
+#     for g = 2:length(γ)
+#         # log-odds (numerator)
+#         γ[g] = 1
+#         update_sb!(sb, gb, data)
+#         log_num = log(πγ[sum(γ)])
+#         for k ∈ A, j ∈ (1, g)
+#             log_num += logmglik(sb, j, k)
+#         end
 
-        # log-odds (denominator)
-        γ[g] = 0
-        update_sb!(sb, gb, data)
-        log_den = log(πγ[sum(γ)])
-        for k ∈ A, j ∈ (1)
-            log_den += logmglik(sb, j, k)
-            # println(logmglik(sb, j, k))
-        end
+#         # log-odds (denominator)
+#         γ[g] = 0
+#         update_sb!(sb, gb, data)
+#         log_den = log(πγ[sum(γ)])
+#         for k ∈ A, j ∈ (1)
+#             log_den += logmglik(sb, j, k)
+#             # println(logmglik(sb, j, k))
+#         end
 
-        # log-odds and new γ[g]
-        log_odds = log_num - log_den
-        γ[g] = rand(rng) <= 1 / (1 + exp(-log_odds))
-    end
-end
+#         # log-odds and new γ[g]
+#         log_odds = log_num - log_den
+#         γ[g] = rand(rng) <= 1 / (1 + exp(-log_odds))
+#     end
+# end
 
 # TODO: Revisar por qué logmglik vale 0.0 en ocasiones

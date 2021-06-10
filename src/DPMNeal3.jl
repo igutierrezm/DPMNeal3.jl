@@ -67,12 +67,12 @@ function logpredlik(sb, gb::GenericBlock, data, i, k)
     error("not implemented")
 end
 
-function update_sb!(sb, gb::GenericBlock, data)
+function update_sb!(rng, sb, gb::GenericBlock, data)
     # Update sb from scratch
     error("not implemented")
 end
 
-function update_sb!(sb, gb::GenericBlock, data, i, k0, k1)
+function update_sb!(rng, sb, gb::GenericBlock, data, i, k0, k1)
     # Update sb after `d[i]` changes from `k0` to `k1`
     error("not implemented")
 end
@@ -86,7 +86,7 @@ end
 
 function update_d!(rng, sb, gb::GenericBlock, data)
     @unpack K, A, P, d, n, τ, α = gb
-    update_sb!(sb, gb, data)
+    update_sb!(rng, sb, gb, data)
     for i in randperm!(rng, τ)
         d0 = d[i]
         d1 = first(P)
@@ -103,7 +103,7 @@ function update_d!(rng, sb, gb::GenericBlock, data)
             (n[d0] -= 1) == 0 && (push!(P, d0); pop!(A, d0); K[1] -= 1)
             (n[d1] += 1) == 1 && (push!(A, d1); pop!(P, d1); K[1] += 1)
             isempty(P) && (push!(n, 0); push!(P, K[1] + 1))
-            update_sb!(sb, gb, data, i, d0, d1)
+            update_sb!(rng, sb, gb, data, i, d0, d1)
             d[i] = d1
         end
     end
