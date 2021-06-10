@@ -5,10 +5,10 @@ using Test
 using StatsBase
 using Statistics
 using SpecialFunctions
-import DPMNeal3: update_sb!, logpredlik
+import DPMNeal3: update_hyperpars!, update_suffstats!, logpredlik
 include("utils.jl")
 
-struct MyData
+struct Data
     x::Vector{Int}
     y::Vector{Float64}
 end
@@ -69,11 +69,11 @@ end
 
 @testset "update_sb! (1)" begin
     rng = MersenneTwister(1)
-    data = MyData([1], [1.0])
+    data = Data([1], [1.0])
     v0, r0, u0, s0 = 1.0, 1.0, 0.0, 1.0
     sb = SpecificBlock(1; v0, r0, u0, s0)
     gb = GenericBlock(rng, 1)
-    update_sb!(rng, sb, gb, data)
+    update_suffstats!(sb, gb, data)
     @test sb.v1[1][1] ≈ 2.0
     @test sb.v1[2][1] ≈ 1.0
     @test sb.r1[1][1] ≈ 2.0
@@ -86,12 +86,12 @@ end
 
 @testset "update_sb! (2)" begin
     rng = MersenneTwister(1)
-    data = MyData([1], [1.0])
+    data = Data([1], [1.0])
     v0, r0, u0, s0 = 1.0, 1.0, 0.0, 1.0
     sb = SpecificBlock(1; v0, r0, u0, s0)
     gb = GenericBlock(rng, 1)
-    update_sb!(rng, sb, gb, data)
-    update_sb!(rng, sb, gb, data, 1, 1, 2)
+    update_suffstats!(sb, gb, data)
+    update_suffstats!(sb, gb, data, 1, 1, 2)
     @test sb.v1[1][1] ≈ 1.0
     @test sb.v1[2][1] ≈ 2.0
     @test sb.r1[1][1] ≈ 1.0
@@ -104,11 +104,11 @@ end
 
 @testset "logpredlik (empty clusters)" begin
     rng = MersenneTwister(1)
-    data = MyData([1], [1.0])
+    data = Data([1], [1.0])
     v0, r0, u0, s0 = 1.0, 1.0, 0.0, 1.0
     sb = SpecificBlock(1; v0, r0, u0, s0)
     gb = GenericBlock(rng, 1)
-    update_sb!(rng, sb, gb, data)
+    update_suffstats!(sb, gb, data)
     @test logpredlik(sb, gb, data, 1, first(gb.P)) ≈ (
         0.5 * 1.0 * log(1.0) -
         0.5 * 2.0 * log(1.5) +
@@ -121,11 +121,11 @@ end
 
 @testset "logpredlik (non-empty clusters)" begin
     rng = MersenneTwister(1)
-    data = MyData([1, 1], [1.0, 0.0])
+    data = Data([1, 1], [1.0, 0.0])
     v0, r0, u0, s0 = 1.0, 1.0, 0.0, 1.0
     sb = SpecificBlock(1; v0, r0, u0, s0)
     gb = GenericBlock(rng, 2)
-    update_sb!(rng, sb, gb, data)
+    update_suffstats!(sb, gb, data)
     @test sb.v1[1][1] ≈ 3.0
     @test sb.r1[1][1] ≈ 3.0
     @test sb.u1[1][1] ≈ 1/3
@@ -143,7 +143,7 @@ end
 
 @testset "update! (1)" begin
     rng = MersenneTwister(1)
-    data = MyData([1, 1], [1.0, 0.0])
+    data = Data([1, 1], [1.0, 0.0])
     v0, r0, u0, s0 = 1.0, 1.0, 0.0, 1.0
     sb = SpecificBlock(1; v0, r0, u0, s0)
     gb = GenericBlock(rng, 2)
@@ -157,7 +157,7 @@ end
     x = [rand(rng, 1:3, F) for _ in 1:N]
     x = StatsBase.denserank(x)
     G = length(unique(x))
-    data = MyData(x, y)
+    data = Data(x, y)
     sb = SpecificBlock(G)
     gb = GenericBlock(rng, N)
     update!(rng, sb, gb, data)
@@ -170,7 +170,7 @@ end
 #     x = [rand(rng, 1:3, F) for _ in 1:N]
 #     x = StatsBase.denserank(x)
 #     G = length(unique(x))
-#     data = MyData(x, y)
+#     data = Data(x, y)
 #     sb = SpecificBlock(G)
 #     gb = GenericBlock(rng, N)
 #     update!(rng, sb, gb, data)
@@ -190,7 +190,7 @@ end
 #     end
 #     y .= (y .- mean(y)) ./ √var(y)
 #     G = length(unique(x))
-#     data = MyData(x, y)
+#     data = Data(x, y)
 #     sb = SpecificBlock(G)
 #     gb = GenericBlock(rng, N; K0 = 1)
 #     for t in 1:10

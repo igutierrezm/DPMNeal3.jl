@@ -67,26 +67,33 @@ function logpredlik(sb, gb::GenericBlock, data, i, k)
     error("not implemented")
 end
 
-function update_sb!(rng, sb, gb::GenericBlock, data)
-    # Update sb from scratch
+function update_hyperpars!(rng, sb, gb::GenericBlock, data)
+    # Update the kernel hyperparameters (if any)
     error("not implemented")
 end
 
-function update_sb!(rng, sb, gb::GenericBlock, data, i, k0, k1)
-    # Update sb after `d[i]` changes from `k0` to `k1`
+function update_suffstats!(sb, gb::GenericBlock, data)
+    # Update the sufficient statistics (if any) from scratch
+    error("not implemented")
+end
+
+function update_suffstats!(sb, gb::GenericBlock, data, i, k0, k1)
+    # Update the sufficient statistics (if any) after `d[i]` changes from `k0` to `k1`
     error("not implemented")
 end
 
 # 4. Gibbs update logic
 
 function update!(rng, sb, gb::GenericBlock, data)
+    update_hyperpars!(rng, sb, gb, data) # update the hyperparameters
     update_d!(rng, sb, gb, data) # update the cluster labels
-    update_α!(rng, gb) # update α
+    update_α!(rng, gb) # update the DP mass parameter
+
 end
 
 function update_d!(rng, sb, gb::GenericBlock, data)
     @unpack K, A, P, d, n, τ, α = gb
-    update_sb!(rng, sb, gb, data)
+    update_suffstats!(sb, gb, data)
     for i in randperm!(rng, τ)
         d0 = d[i]
         d1 = first(P)
@@ -103,7 +110,7 @@ function update_d!(rng, sb, gb::GenericBlock, data)
             (n[d0] -= 1) == 0 && (push!(P, d0); pop!(A, d0); K[1] -= 1)
             (n[d1] += 1) == 1 && (push!(A, d1); pop!(P, d1); K[1] += 1)
             isempty(P) && (push!(n, 0); push!(P, K[1] + 1))
-            update_sb!(rng, sb, gb, data, i, d0, d1)
+            update_suffstats!(sb, gb, data, i, d0, d1)
             d[i] = d1
         end
     end

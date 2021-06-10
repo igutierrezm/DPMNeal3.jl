@@ -31,7 +31,10 @@ function resize!(sb::SpecificBlock, n::Integer)
     end    
 end
 
-function update_sb!(rng, sb::SpecificBlock, gb::GenericBlock, data)
+function update_hyperpars!(rng, sb::SpecificBlock, gb::GenericBlock, data)
+end
+
+function update_suffstats!(sb::SpecificBlock, gb::GenericBlock, data)
     @unpack y, x = data
     @unpack N, A, d, n = gb
     @unpack v1, r1, u1, s1, v0, r0, u0, s0, γ = sb
@@ -52,7 +55,7 @@ function update_sb!(rng, sb::SpecificBlock, gb::GenericBlock, data)
     end
 end
 
-function update_sb!(rng, sb::SpecificBlock, gb::GenericBlock, data, i, k1, k2)
+function update_suffstats!(sb::SpecificBlock, gb::GenericBlock, data, i, k1, k2)
     @unpack n = gb
     @unpack y, x = data
     @unpack v1, r1, u1, s1, γ = sb
