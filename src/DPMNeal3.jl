@@ -3,7 +3,7 @@ module DPMNeal3
 using Distributions: Beta, Gamma 
 using Parameters: @unpack
 using Random: randperm, randperm!
-export GenericBlock, update!
+export GenericBlock, update!, N, n, K, α, A, P
 
 """
     GenericBlock(rng::AbstractRNG, N::Int; K0::Int = 1, a0 = 2.0, b0 = 4.0)
@@ -39,10 +39,13 @@ struct GenericBlock
     end
 end
 
-"Return the sample size."
+"Return the global sample size."
 N(gb::GenericBlock) = gb.N
 
-"Return the current number of cluster."
+"Return the current cluster sizes."
+n(gb::GenericBlock) = gb.n
+
+"Return the current number of clusters."
 K(gb::GenericBlock) = gb.K[1]
 
 "Return the current DP concentration parameter."
