@@ -16,6 +16,7 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
+        "Getting Started" => "start.md",
         "Create new DPM models" => "create.md",
         "References" => "references.md"
     ],
