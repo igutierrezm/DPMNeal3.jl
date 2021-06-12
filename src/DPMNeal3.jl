@@ -42,39 +42,39 @@ struct GenericBlock <: AbstractDPM
 end
 
 """
-    N(m::AbstractDPM)
+    cluster_labels(m::AbstractDPM)
 
-Return the global sample size.
+Return the cluster labels.
 """
-N(gb::AbstractDPM) = gb.N
-
-"""
-    n(m::AbstractDPM)
-
-Return the current cluster sizes.
-"""
-n(gb::AbstractDPM) = gb.n
+cluster_labels(gb::AbstractDPM) = gb.d
 
 """
-    K(m::AbstractDPM)
+    cluster_sizes(m::AbstractDPM)
 
-Return the current number of clusters.
+Return the cluster sizes.
 """
-K(gb::AbstractDPM) = gb.K[1]
+cluster_sizes(gb::AbstractDPM) = gb.n
 
 """
-    α(m::AbstractDPM)
+    n_clusters(m::AbstractDPM)
+
+Return the number of active clusters.
+"""
+n_clusters(gb::AbstractDPM) = gb.K[1]
+
+"""
+    dp_mass(m::AbstractDPM)
 
 Return the current DP concentration parameter.
 """
-α(gb::AbstractDPM) = gb.α[1]
+dp_mass(gb::AbstractDPM) = gb.α[1]
 
 """
-    A(m::AbstractDPM)
+    active_clusters(m::AbstractDPM)
 
 Return the set of active clusters.
 """
-A(gb::AbstractDPM) = gb.A
+active_clusters(gb::AbstractDPM) = gb.A
 
 # 3. Interface 
 # Any DPM specific block (sb) must implement these functions
