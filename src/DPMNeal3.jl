@@ -1,9 +1,11 @@
 module DPMNeal3
 
+abstract type AbstractDPM end
+
 using Distributions: Beta, Gamma 
 using Parameters: @unpack
 using Random: randperm, randperm!
-export GenericBlock, update!, N, n, K, α, A, P
+export GenericBlock, AbstractDPM, update!, N, n, K, α, A, P, Foo
 
 """
     GenericBlock(rng::AbstractRNG, N::Int; K0::Int = 1, a0 = 2.0, b0 = 4.0)
@@ -12,7 +14,7 @@ Initialize the generic block of a DPM with `N` observations, `K0` initial
 clusters and a Gamma prior distribution (with shape `a0` and rate `b0`) 
 for the DP concentration parameter.
 """
-struct GenericBlock
+struct GenericBlock <: AbstractDPM
     N::Int             # sample size
     K::Vector{Int}     # number of clusters
     α::Vector{Float64} # DP mass parameter
@@ -39,23 +41,47 @@ struct GenericBlock
     end
 end
 
-"Return the global sample size."
-N(gb::GenericBlock) = gb.N
+"""
+    N(m::AbstractDPM)
 
-"Return the current cluster sizes."
-n(gb::GenericBlock) = gb.n
+Return the global sample size.
+"""
+N(gb::AbstractDPM) = gb.N
 
-"Return the current number of clusters."
-K(gb::GenericBlock) = gb.K[1]
+"""
+    n(m::AbstractDPM)
 
-"Return the current DP concentration parameter."
-α(gb::GenericBlock) = gb.α[1]
+Return the current cluster sizes.
+"""
+n(gb::AbstractDPM) = gb.n
 
-"Return the set of active clusters."
-A(gb::GenericBlock) = gb.A
+"""
+    K(m::AbstractDPM)
 
-"Return the set of passive clusters."
-P(gb::GenericBlock) = gb.P
+Return the current number of clusters.
+"""
+K(gb::AbstractDPM) = gb.K[1]
+
+"""
+    α(m::AbstractDPM)
+
+Return the current DP concentration parameter.
+"""
+α(gb::AbstractDPM) = gb.α[1]
+
+"""
+    A(m::AbstractDPM)
+
+Return the set of active clusters.
+"""
+A(gb::AbstractDPM) = gb.A
+
+"""
+    P(m::AbstractDPM)
+
+Return at least one passive clusters.
+"""
+P(gb::AbstractDPM) = gb.P
 
 # 3. Interface 
 # Any DPM specific block (sb) must implement these functions

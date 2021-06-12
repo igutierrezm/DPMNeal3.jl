@@ -5,8 +5,16 @@ using Test
 using StatsBase
 using Statistics
 using SpecialFunctions
+using Lazy: @forward
+
 import DPMNeal3: update_hyperpars!, update_suffstats!, logpredlik
 include("utils.jl")
+
+struct Foo <: AbstractDPM
+    gb::GenericBlock
+end
+
+@forward Foo.gb N, n, K, α, A
 
 struct Data
     x::Vector{Int}
