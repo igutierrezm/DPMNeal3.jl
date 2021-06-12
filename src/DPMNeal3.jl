@@ -5,7 +5,7 @@ abstract type AbstractDPM end
 using Distributions: Beta, Gamma 
 using Parameters: @unpack
 using Random: randperm, randperm!
-export GenericBlock, AbstractDPM, update!, N, n, K, α, A, P, Foo
+export GenericBlock, AbstractDPM, update!, N, n, K, α, A
 
 """
     GenericBlock(rng::AbstractRNG, N::Int; K0::Int = 1, αa0 = 2.0, αb0 = 4.0)
@@ -75,13 +75,6 @@ Return the current DP concentration parameter.
 Return the set of active clusters.
 """
 A(gb::AbstractDPM) = gb.A
-
-"""
-    P(m::AbstractDPM)
-
-Return at least one passive clusters.
-"""
-P(gb::AbstractDPM) = gb.P
 
 # 3. Interface 
 # Any DPM specific block (sb) must implement these functions
