@@ -25,8 +25,8 @@ end
     rng = MersenneTwister(1)
     @test_throws AssertionError GenericBlock(rng, 10; K0 = 20)
     @test_throws AssertionError GenericBlock(rng, 10; K0 = -1)
-    @test_throws AssertionError GenericBlock(rng, 10; a0 = -1)
-    @test_throws AssertionError GenericBlock(rng, 10; b0 = -1)
+    @test_throws AssertionError GenericBlock(rng, 10; αa0 = -1)
+    @test_throws AssertionError GenericBlock(rng, 10; αb0 = -1)
     @test_throws TypeError      GenericBlock(rng, 10; K0 = .5)
     @test_throws MethodError    GenericBlock(rng, .5)
     N  = 4

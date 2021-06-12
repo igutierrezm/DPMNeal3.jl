@@ -8,10 +8,10 @@ using Random: randperm, randperm!
 export GenericBlock, AbstractDPM, update!, N, n, K, α, A, P, Foo
 
 """
-    GenericBlock(rng::AbstractRNG, N::Int; K0::Int = 1, a0 = 2.0, b0 = 4.0)
+    GenericBlock(rng::AbstractRNG, N::Int; K0::Int = 1, αa0 = 2.0, αb0 = 4.0)
 
 Initialize the generic block of a DPM with `N` observations, `K0` initial 
-clusters and a Gamma prior distribution (with shape `a0` and rate `b0`) 
+clusters and a Gamma prior distribution (with shape `αa0` and rate `αb0`) 
 for the DP concentration parameter.
 """
 struct GenericBlock <: AbstractDPM
@@ -23,13 +23,13 @@ struct GenericBlock <: AbstractDPM
     n::Vector{Int}     # cluster sizes
     P::Set{Int}        # passive clusters
     A::Set{Int}        # active clusters
-    a0::Float64        # shape parameter in α's prior
-    b0::Float64        # rate parameter in α's prior
-    function GenericBlock(rng, N::Int; K0::Int = 1, a0 = 2.0, b0 = 4.0)
+    αa0::Float64        # shape parameter in α's prior
+    αb0::Float64        # rate parameter in α's prior
+    function GenericBlock(rng, N::Int; K0::Int = 1, αa0 = 2.0, αb0 = 4.0)
         @assert N >= K0
         @assert K0 >= 0
-        @assert a0 >= 0
-        @assert b0 >= 0
+        @assert αa0 >= 0
+        @assert αb0 >= 0
         K = [K0]
         α = [1.0]
         τ = randperm(rng, N)
@@ -37,7 +37,7 @@ struct GenericBlock <: AbstractDPM
         n = [sum(d .== k) for k in 1:(K0 + 1)]
         P = Set(K0 + 1)
         A = Set(1:K0)
-        new(N, K, α, τ, d, n, P, A, a0, b0)
+        new(N, K, α, τ, d, n, P, A, αa0, αb0)
     end
 end
 
@@ -147,10 +147,10 @@ function update_d!(rng, sb, gb::GenericBlock, data)
 end
 
 function update_α!(rng, gb::GenericBlock)
-    @unpack N, K, α, a0, b0 = gb
+    @unpack N, K, α, αa0, αb0 = gb
     ϕ = rand(rng, Beta(α[1] + 1.0, N))
-    ψ = 1.0 / (1.0 + N * (b0 - log(ϕ)) / (a0 + K[1] - 1.0))
-    α[1] = rand(rng, Gamma(a0 + K[1] - (rand(rng) > ψ), 1.0 / (b0 - log(ϕ))))
+    ψ = 1.0 / (1.0 + N * (αb0 - log(ϕ)) / (αa0 + K[1] - 1.0))
+    α[1] = rand(rng, Gamma(αa0 + K[1] - (rand(rng) > ψ), 1.0 / (αb0 - log(ϕ))))
     return nothing
 end
 
