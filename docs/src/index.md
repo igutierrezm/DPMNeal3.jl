@@ -94,5 +94,5 @@ Consider a DPM o in its so-called *stick-breaking* representation:
 Modules = [DPMNeal3]
 ```
 
-# push!(LOAD_PATH,"../src/")
-# rm -rf build; julia make.jl
+<!-- push!(LOAD_PATH,"../src/")
+rm -rf build; julia make.jl -->
