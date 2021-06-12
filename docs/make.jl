@@ -1,3 +1,4 @@
+# push!(LOAD_PATH,"../src/")
 using DPMNeal3
 using Documenter
 
