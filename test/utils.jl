@@ -31,10 +31,10 @@ function resize!(sb::SpecificBlock, n::Integer)
     end    
 end
 
-function update_hyperpars!(rng, sb::SpecificBlock, gb::GenericBlock, data)
+function update_hyperpars!(rng, sb::SpecificBlock, gb::DPMGB, data)
 end
 
-function update_suffstats!(sb::SpecificBlock, gb::GenericBlock, data)
+function update_suffstats!(sb::SpecificBlock, gb::DPMGB, data)
     @unpack y, x = data
     @unpack N, A, d, n = gb
     @unpack v1, r1, u1, s1, v0, r0, u0, s0, γ = sb
@@ -55,7 +55,7 @@ function update_suffstats!(sb::SpecificBlock, gb::GenericBlock, data)
     end
 end
 
-function update_suffstats!(sb::SpecificBlock, gb::GenericBlock, data, i, k1, k2)
+function update_suffstats!(sb::SpecificBlock, gb::DPMGB, data, i, k1, k2)
     @unpack n = gb
     @unpack y, x = data
     @unpack v1, r1, u1, s1, γ = sb
@@ -77,7 +77,7 @@ function update_suffstats!(sb::SpecificBlock, gb::GenericBlock, data, i, k1, k2)
     r1[k1][zi] -= 1
 end
 
-function logpredlik(sb::SpecificBlock, gb::GenericBlock, data, i, k)
+function logpredlik(sb::SpecificBlock, gb::DPMGB, data, i, k)
     @unpack v1, r1, u1, s1, γ = sb
     @unpack y, x = data
     @unpack d = gb
@@ -131,7 +131,7 @@ function logmglik(sb::SpecificBlock, j, k)
     )
 end
 
-# function update_γ!(rng, sb::SpecificBlock, gb::GenericBlock, data)
+# function update_γ!(rng, sb::SpecificBlock, gb::DPMGB, data)
 #     @unpack πγ, γ = sb
 #     @unpack A = gb
 
