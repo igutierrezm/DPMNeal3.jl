@@ -6,10 +6,9 @@ const DPMSB = AbstractDPM_SB
 
 using Distributions: Beta, Gamma 
 using Parameters: @unpack
-using Lazy: @forward
 using Random: randperm, randperm!, AbstractRNG
 using SpecialFunctions: loggamma
-export AbstractDPM, DPM, NormalDPM, cluster_labels, cluster_sizes, n_clusters, dp_mass, active_clusters, passive_clusters, max_cluster_label, @forward_dpm_methods, update!
+export AbstractDPM, DPM, NormalDPM, cluster_labels, cluster_sizes, n_clusters, dp_mass, active_clusters, passive_clusters, max_cluster_label, update!
 
 """
     DPM(rng::AbstractRNG, N; K0 = 1, a0 = 2.0, b0 = 4.0)
@@ -51,98 +50,75 @@ end
 
 Return the cluster labels.
 """
-cluster_labels(m::DPM) = m.d
+cluster_labels(m::AbstractDPM) = parent(m).d
 
 """
     cluster_sizes(m::AbstractDPM)
 
 Return the cluster sizes.
 """
-cluster_sizes(m::DPM) = m.n
+cluster_sizes(m::AbstractDPM) = parent(m).n
 
 """
     active_clusters(m::AbstractDPM)
 
 Return the set of active clusters.
 """
-active_clusters(m::DPM) = m.A
+active_clusters(m::AbstractDPM) = parent(m).A
 
 """
     passive_clusters(m::AbstractDPM)
 
 Return a subset of the passive clusters.
 """
-passive_clusters(m::AbstractDPM) = m.P
+passive_clusters(m::AbstractDPM) = parent(m).P
 
 """
     n_clusters(m::DPM)
 
 Return the number of active clusters.
 """
-n_clusters(m::DPM) = m.K[1]
+n_clusters(m::AbstractDPM) = parent(m).K[1]
 
 """
     max_cluster_label(m::AbstractDPM)
 
 Return the largest (active) cluster label.
 """
-max_cluster_label(m::DPM) = m.Q[1]
+max_cluster_label(m::AbstractDPM) = parent(m).Q[1]
 
 """
     dp_mass(m::AbstractDPM)
 
 Return the DP mass parameter.
 """
-dp_mass(m::DPM) = m.α[1]
+dp_mass(m::AbstractDPM) = parent(m).α[1]
 
 """
     a0(m::AbstractDPM)
 
 Return the shape parameter in the DP mass parameter's prior distribution.
 """
-a0(m::DPM) = m.a0
+a0(m::AbstractDPM) = parent(m).a0
 
 """
     b0(m::AbstractDPM)
 
 Return the scale parameter in the DP mass parameter's prior distribution.
 """
-b0(m::DPM) = m.b0
+b0(m::AbstractDPM) = parent(m).b0
+
+# 3. Interface
+# Any DPM specific block (sb) must implement these functions
 
 """
     parent(m::AbstractDPM)
 
-Return the parent DPM. 
+Return the parent DPM.
 """
-parent(m::DPM) = m
-
-"""
-    @forward_all_dpm_methods T.x
-
-Extend all the methods originally defined on type `DPM` on type `T`, which call 
-the relevant functions on the field `x`.
-
-# One Example
-
-```julia
-struct CustomDPM
-    gb::DPM
+function parent(m::AbstractDPM)
+    error("not implemented")
 end
-@forward_all_dpm_methods CustomDPM.gb
-# Now dp_mass(m::Custom) call dp_mass(m.gb)
-# Now cluster_labels(m::Custom) call cluster_labels(m.gb)
-# etc.
-```
-"""
-macro forward_dpm_methods(ex)
-    return :(
-        @forward $(ex) n_clusters, active_clusters, cluster_labels, 
-        cluster_sizes, dp_mass, max_cluster_label, passive_clusters, parent
-    )
-end
-
-# 3. Interface
-# Any DPM specific block (sb) must implement these functions
 
 """
     logpredlik(sb::AbstractDPM_SB, gb::DPMGB, data, i, k)
@@ -171,8 +147,8 @@ end
 
 function update!(rng, m::AbstractDPM, y)
     update_hyperpars!(rng, m, y) # update the hyperparameters
-    update_α!(rng, parent(m)) # update the DP mass parameter
     update_d!(rng, m, y) # update the cluster labels
+    update_α!(rng, m) # update the DP mass parameter
 end
 
 function update_d!(rng, m::AbstractDPM, y)
@@ -201,8 +177,8 @@ function update_d!(rng, m::AbstractDPM, y)
     return nothing
 end
 
-function update_α!(rng, m::DPM)
-    @unpack N, K, α, a0, b0 = m
+function update_α!(rng, m::AbstractDPM)
+    @unpack N, K, α, a0, b0 = parent(m)
     ϕ = rand(rng, Beta(α[1] + 1.0, N))
     ψ = 1.0 / (1.0 + N * (b0 - log(ϕ)) / (a0 + K[1] - 1.0))
     α[1] = rand(rng, Gamma(a0 + K[1] - (rand(rng) > ψ), 1.0 / (b0 - log(ϕ))))

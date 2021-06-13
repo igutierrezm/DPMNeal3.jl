@@ -61,7 +61,7 @@ end
 
 @testset "update_α!" begin
     rng = MersenneTwister(1)
-    m = DPM(rng, 5)
+    m = NormalDPM(rng, 5)
     DPMNeal3.update_α!(rng, m)
     @test dp_mass(m) < Inf
     @test dp_mass(m) > 0

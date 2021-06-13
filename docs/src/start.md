@@ -25,17 +25,10 @@ julia> using Random, DPMNeal3
 julia> rng = MersenneTwister(1)
 ```
 
-Then, we create the generic block (GB) of our DPM using `DPMGB()`:
+Then, we create Normal DPM with `N = 1000` observations using `NormalDPM()`:
 
 ```julia
-julia> N = 1000
-julia> gb = DPMGB(rng, N)
-```
-
-Finally, we create the specific block (GB) of our DPM using `DPM_SB_Normal()`:
-
-```julia
-julia> sb = DPM_SB_Normal()
+julia> gb = NormalDPM(rng; N = 1000)
 ```
 
 ## Performing a Gibbs update
@@ -47,10 +40,10 @@ julia> y = randn(N)
 julia> x = ones(N)
 ```
 
-Given this sample, we can perform a Gibbs update as follows:
+Given this sample, we can perform a Gibbs update using `gibbs_update!()`:
 
 ```julia
-julia> update!(rng, sb, gb, y, x)
+julia> gibbs_update!(rng, m, y, x)
 ```
 
 ## Accesing the state of the chain
@@ -58,9 +51,9 @@ julia> update!(rng, sb, gb, y, x)
 Once `m` have been updated, we can inspect the current state of the chain using the following accessors:
 
 ```julia
-n_clusters(gb)      # return the number of active clusters
-active_clusters(gb) # return the active clusters
-cluster_labels(gb)  # return the cluster labels
-cluster_sizes(gb)   # return the cluster sizes
-dp_mass(gb)         # return the DP mass parameter
+n_clusters(m)      # return the number of active clusters
+active_clusters(m) # return the active clusters
+cluster_labels(m)  # return the cluster labels
+cluster_sizes(m)   # return the cluster sizes
+dp_mass(m)         # return the DP mass parameter
 ```
