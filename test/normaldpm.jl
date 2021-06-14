@@ -1,5 +1,5 @@
 struct NormalDPM <: AbstractDPM
-    parent::DPM
+    parent::GenericDPM
     v0::Float64
     r0::Float64
     u0::Float64
@@ -19,7 +19,7 @@ struct NormalDPM <: AbstractDPM
             u0::Float64 = 0.0, 
             s0::Float64 = 1.0
         )
-        parent = DPM(rng, N; K0, a0, b0)
+        parent = GenericDPM(rng, N; K0, a0, b0)
         v1 = [v0]
         r1 = [r0]
         u1 = [u0]
@@ -40,8 +40,8 @@ function add_cluster!(m::NormalDPM)
     push!(s1, s0)
 end
 
-function update_suffstats!(m::NormalDPM, y)
-    N = length(y)
+function update_suffstats!(m::NormalDPM, data)
+    N = length(data)
     d = cluster_labels(m)
     A = active_clusters(m)
     Q = max_cluster_label(m)
@@ -59,12 +59,12 @@ function update_suffstats!(m::NormalDPM, y)
         k = d[i]
         v1[k] += 1
         r1[k] += 1
-        u1[k] = ((r1[k] - 1) * u1[k] + y[i]) / r1[k]
-        s1[k] += (r1[k] / (r1[k] - 1)) * (y[i] - u1[k])^2
+        u1[k] = ((r1[k] - 1) * u1[k] + data[i]) / r1[k]
+        s1[k] += (r1[k] / (r1[k] - 1)) * (data[i] - u1[k])^2
     end
 end
 
-function update_suffstats!(m::NormalDPM, y, i, k1, k2)
+function update_suffstats!(m::NormalDPM, data, i, k1, k2)
     Q = max_cluster_label(m)
     @unpack v1, r1, u1, s1 = m
     while length(v1) ≤ Q
@@ -72,22 +72,22 @@ function update_suffstats!(m::NormalDPM, y, i, k1, k2)
     end
 
     # Modify suffstats for cluster k1
-    s1[k1] -= (r1[k1] / (r1[k1] - 1)) * (y[i] - u1[k1])^2
-    u1[k1]  = (r1[k1] * u1[k1] - y[i]) / (r1[k1] - 1)
+    s1[k1] -= (r1[k1] / (r1[k1] - 1)) * (data[i] - u1[k1])^2
+    u1[k1]  = (r1[k1] * u1[k1] - data[i]) / (r1[k1] - 1)
     v1[k1] -= 1
     r1[k1] -= 1
 
     # Modify suffstats for cluster k2
     v1[k2] += 1
     r1[k2] += 1
-    u1[k2] = ((r1[k2] - 1) * u1[k2] + y[i]) / r1[k2]
-    s1[k2] += (r1[k2] / (r1[k2] - 1)) * (y[i] - u1[k2])^2
+    u1[k2] = ((r1[k2] - 1) * u1[k2] + data[i]) / r1[k2]
+    s1[k2] += (r1[k2] / (r1[k2] - 1)) * (data[i] - u1[k2])^2
 end
 
-function logpredlik(m::NormalDPM, y, i, k)
+function logpredlik(m::NormalDPM, data, i, k)
     @unpack v1, r1, u1, s1 = m
     d = cluster_labels(m)
-    yi = y[i]
+    yi = data[i]
     di = d[i]
 
     if di == k

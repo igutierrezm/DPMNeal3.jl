@@ -1,22 +1,24 @@
 module DPMNeal3
 
 abstract type AbstractDPM end
-abstract type AbstractDPM_SB end
-const DPMSB = AbstractDPM_SB
 
 using Distributions: Beta, Gamma 
 using Parameters: @unpack
-using Random: randperm, randperm!, AbstractRNG
-using SpecialFunctions: loggamma
-export AbstractDPM, DPM, NormalDPM, cluster_labels, cluster_sizes, n_clusters, dp_mass, active_clusters, passive_clusters, max_cluster_label, update!
+using Random: AbstractRNG, randperm, randperm!
+export 
+    # Types
+    AbstractDPM, GenericDPM,
+    # Methods
+    update!, cluster_labels, cluster_sizes, n_clusters, dp_mass, 
+    active_clusters, passive_clusters, max_cluster_label
 
 """
-    DPM(rng::AbstractRNG, N; K0 = 1, a0 = 2.0, b0 = 4.0)
+    GenericDPM(rng::AbstractRNG, N; K0 = 1, a0 = 2.0, b0 = 4.0)
 
 Initialize a generic DPM with `N` observations, `K0` initial clusters and a 
 `Gamma(a0, b0)` prior distribution for the mass parameter.
 """
-struct DPM <: AbstractDPM
+struct GenericDPM
     N::Int             # sample size
     K::Vector{Int}     # number of clusters
     Q::Vector{Int}     # largest cluster label
@@ -28,7 +30,7 @@ struct DPM <: AbstractDPM
     A::Set{Int}        # active clusters
     a0::Float64        # shape parameter in α's prior
     b0::Float64        # rate parameter in α's prior
-    function DPM(rng, N::Int; K0::Int = 1, a0 = 2.0, b0 = 4.0)
+    function GenericDPM(rng::AbstractRNG, N::Int; K0::Int = 1, a0 = 2.0, b0 = 4.0)
         @assert N >= K0
         @assert K0 >= 0
         @assert a0 >= 0
@@ -74,7 +76,7 @@ Return a subset of the passive clusters.
 passive_clusters(m::AbstractDPM) = parent(m).P
 
 """
-    n_clusters(m::DPM)
+    n_clusters(m::AbstractDPM)
 
 Return the number of active clusters.
 """
@@ -94,20 +96,6 @@ Return the DP mass parameter.
 """
 dp_mass(m::AbstractDPM) = parent(m).α[1]
 
-"""
-    a0(m::AbstractDPM)
-
-Return the shape parameter in the DP mass parameter's prior distribution.
-"""
-a0(m::AbstractDPM) = parent(m).a0
-
-"""
-    b0(m::AbstractDPM)
-
-Return the scale parameter in the DP mass parameter's prior distribution.
-"""
-b0(m::AbstractDPM) = parent(m).b0
-
 # 3. Interface
 # Any DPM specific block (sb) must implement these functions
 
@@ -123,45 +111,45 @@ end
 """
     logpredlik(sb::AbstractDPM_SB, gb::DPMGB, data, i, k)
 
-Return ``\\log(y_i | y_{-i}, d_i = k, d_{-i})``. 
+Return ``\\log(y_i | y_{-i}, x, d_i = k, d_{-i})``. 
 """
-function logpredlik(m::AbstractDPM, y, i, k)
+function logpredlik(m::AbstractDPM, data, i, k)
     # Return log p(y[i] | y[-i], d[-i], d[i] = k)
     error("not implemented")
 end
 
-function update_hyperpars!(rng, m::AbstractDPM, y)
+function update_hyperpars!(rng::AbstractRNG, m::AbstractDPM, data)
 end
 
-function update_suffstats!(m::AbstractDPM, y)
+function update_suffstats!(m::AbstractDPM, data)
     # Update the sufficient statistics (if any) from scratch
     error("not implemented")
 end
 
-function update_suffstats!(m::AbstractDPM, y, i, k0, k1)
+function update_suffstats!(m::AbstractDPM, data, i, k0, k1)
     # Update the sufficient statistics (if any) after `d[i]` changes from `k0` to `k1`
     error("not implemented")
 end
 
 # 4. Gibbs update logic
 
-function update!(rng, m::AbstractDPM, y)
-    update_hyperpars!(rng, m, y) # update the hyperparameters
-    update_d!(rng, m, y) # update the cluster labels
+function update!(rng::AbstractRNG, m::AbstractDPM, data)
+    update_hyperpars!(rng, m, data) # update the hyperparameters
+    update_d!(rng, m, data) # update the cluster labels
     update_α!(rng, m) # update the DP mass parameter
 end
 
-function update_d!(rng, m::AbstractDPM, y)
+function update_d!(rng::AbstractRNG, m::AbstractDPM, data)
     @unpack K, Q, A, P, d, n, τ, α = parent(m)
-    update_suffstats!(m, y)
+    update_suffstats!(m, data)
     for i in randperm!(rng, τ)
         d0 = d[i]
         d1 = first(P)
         p1 = log(α[1]) 
-        p1 += logpredlik(m, y, i, d1)
+        p1 += logpredlik(m, data, i, d1)
         p1 -= log(-log(rand(rng)))
         for k in A
-            p = logpredlik(m, y, i, k)
+            p = logpredlik(m, data, i, k)
             p += log(n[k] - (d0 == k))
             p -= log(-log(rand(rng)))
             p > p1 && (d1 = k; p1 = p)
@@ -170,21 +158,19 @@ function update_d!(rng, m::AbstractDPM, y)
             (n[d0] -= 1) == 0 && (push!(P, d0); pop!(A, d0); K[1] -= 1)
             (n[d1] += 1) == 1 && (push!(A, d1); pop!(P, d1); K[1] += 1)
             isempty(P) && (push!(n, 0); push!(P, K[1] + 1); Q[1] += 1)
-            update_suffstats!(m, y, i, d0, d1)
+            update_suffstats!(m, data, i, d0, d1)
             d[i] = d1
         end
     end
     return nothing
 end
 
-function update_α!(rng, m::AbstractDPM)
+function update_α!(rng::AbstractRNG, m::AbstractDPM)
     @unpack N, K, α, a0, b0 = parent(m)
     ϕ = rand(rng, Beta(α[1] + 1.0, N))
     ψ = 1.0 / (1.0 + N * (b0 - log(ϕ)) / (a0 + K[1] - 1.0))
     α[1] = rand(rng, Gamma(a0 + K[1] - (rand(rng) > ψ), 1.0 / (b0 - log(ϕ))))
     return nothing
 end
-
-include("normaldpm.jl")
 
 end # module
