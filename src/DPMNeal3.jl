@@ -15,6 +15,8 @@ export
     AbstractDPM, DPM,
     # Methods
     update!, cluster_labels, cluster_sizes, n_clusters, dp_mass, 
-    active_clusters, passive_clusters, max_cluster_label
+    active_clusters, passive_clusters, cluster_capacity,
+    # Interface
+    parent_dpm, update_suffstats!, update_hyperpars!, logpredlik
 
 end # module

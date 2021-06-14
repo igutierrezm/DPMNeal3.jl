@@ -2,21 +2,20 @@
 # and implement the following methods (with m::AbstractDPM replaced by MyDPM)
 
 """
-    parent(m::AbstractDPM)
+    parent_dpm(m::AbstractDPM)
 
-Return the parent DPM of `m`.
+Return the parent DPM.
 """
-function parent(m::AbstractDPM)
+function parent_dpm(m::AbstractDPM)
     error("not implemented")
 end
 
 """
     logpredlik(m::AbstractDPM, data, i::Int, k::Int)
 
-Return ``\\log(y_i | y_{-i}, x, d_i = k, d_{-i})``, where y_i, x_i and d_i are
-the response, the covariates (if any) and the cluster label associated with 
-the `i`th observation. Both x_i and y_i should be present in the dataset 
-`data`.
+Return the log-pdf of the `i`th response at its current value, given the other 
+responses, the other cluster labels, and the own cluster label fixed at `k`. 
+The responses should be present in `data`.
 """
 function logpredlik(m::AbstractDPM, data, i::Int, k::Int)
     error("not implemented")
@@ -32,7 +31,7 @@ function update_hyperpars!(rng::AbstractRNG, m::AbstractDPM, data)
 end
 
 """
-    update_suffstats!(m::AbstractDPM, data, i::Int, k0::Int, k1::Int)
+    update_suffstats!(m::AbstractDPM, data)
 
 Update the sufficient statistics in `m` from scratch, given the dataset `data`.
 """
@@ -41,11 +40,11 @@ function update_suffstats!(m::AbstractDPM, data)
 end
 
 """
-    update_suffstats!(m::AbstractDPM, data, i::Int, k0::Int, k1::Int)
+    update_suffstats!(m::AbstractDPM, data, i::Int, k::Int, l::Int)
 
-Update the sufficient statistics in `m` after the cluster label of the `i`th 
-observation changes from `k0` to `k1`, given the dataset `data`.
+Update the sufficient statistics in `m` after the `i`th cluster label changes 
+from `k` to `l`, given the dataset `data`.
 """
-function update_suffstats!(m::AbstractDPM, data, i::Int, k0::Int, k1::Int)
+function update_suffstats!(m::AbstractDPM, data, i::Int, k::Int, l::Int)
     error("not implemented")
 end

@@ -21,12 +21,12 @@ struct DPM <: AbstractDPM
         @assert K0 >= 0
         @assert a0 >= 0
         @assert b0 >= 0
-        K = [K0]
-        Q = [K0]
+        K = [K0 + 0]
+        Q = [K0 + 1]
         α = [1.0]
         τ = randperm(rng, N)
         d = rand(rng, 1:K0, N); d[1:K0] = 1:K0;
-        n = [sum(d .== k) for k in 1:(K0 + 1)]
+        n = [sum(d .== k) for k in 1:Q[1]]
         P = Set(K0 + 1)
         A = Set(1:K0)
         new(N, K, Q, α, τ, d, n, P, A, a0, b0)
@@ -40,5 +40,5 @@ cluster_sizes(m::DPM) = m.n
 active_clusters(m::DPM) = m.A
 passive_clusters(m::DPM) = m.P
 n_clusters(m::DPM) = m.K[1]
-max_cluster_label(m::DPM) = m.Q[1]
+cluster_capacity(m::DPM) = m.Q[1]
 dp_mass(m::DPM) = m.α[1]

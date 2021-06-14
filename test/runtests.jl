@@ -5,7 +5,7 @@ using Test
 # using StatsBase
 # using Statistics
 using SpecialFunctions: loggamma
-import DPMNeal3: parent, logpredlik, update_hyperpars!, update_suffstats!
+import DPMNeal3: parent_dpm, logpredlik, update_hyperpars!, update_suffstats!
 include("normaldpm.jl")
 
 struct Data

@@ -1,4 +1,3 @@
-push!(LOAD_PATH,"../src/")
 using DPMNeal3
 using Documenter
 
@@ -19,6 +18,7 @@ makedocs(;
         "Installation" => "install.md",
         "Getting Started" => "start.md",
         "Creating new DPMs" => "create.md",
+        "Library" => "library.md",
         "References" => "references.md"
     ],
 )

@@ -5,7 +5,7 @@ function update!(rng::AbstractRNG, m::AbstractDPM, data)
 end
 
 function update_d!(rng::AbstractRNG, m::AbstractDPM, data)
-    @unpack K, Q, A, P, d, n, τ, α = parent(m)
+    @unpack K, Q, A, P, d, n, τ, α = parent_dpm(m)
     update_suffstats!(m, data)
     for i in randperm!(rng, τ)
         d0 = d[i]
@@ -31,7 +31,7 @@ function update_d!(rng::AbstractRNG, m::AbstractDPM, data)
 end
 
 function update_α!(rng::AbstractRNG, m::AbstractDPM)
-    @unpack N, K, α, a0, b0 = parent(m)
+    @unpack N, K, α, a0, b0 = parent_dpm(m)
     ϕ = rand(rng, Beta(α[1] + 1.0, N))
     ψ = 1.0 / (1.0 + N * (b0 - log(ϕ)) / (a0 + K[1] - 1.0))
     α[1] = rand(rng, Gamma(a0 + K[1] - (rand(rng) > ψ), 1.0 / (b0 - log(ϕ))))
@@ -41,48 +41,48 @@ end
 """
     cluster_labels(m::AbstractDPM)
 
-Return the cluster labels.
+Return the current cluster labels.
 """
-cluster_labels(m::AbstractDPM) = parent(m).d
+cluster_labels(m::AbstractDPM) = cluster_labels(parent_dpm(m))
 
 """
     cluster_sizes(m::AbstractDPM)
 
-Return the cluster sizes.
+Return the current cluster sizes.
 """
-cluster_sizes(m::AbstractDPM) = parent(m).n
+cluster_sizes(m::AbstractDPM) = cluster_sizes(parent_dpm(m))
+
+"""
+    cluster_capacity(m::AbstractDPM)
+
+Return the current cluster storage capacity.
+"""
+cluster_capacity(m::AbstractDPM) = cluster_capacity(parent_dpm(m))
 
 """
     active_clusters(m::AbstractDPM)
 
-Return the set of active clusters.
+Return the current set of active clusters.
 """
-active_clusters(m::AbstractDPM) = parent(m).A
+active_clusters(m::AbstractDPM) = active_clusters(parent_dpm(m))
 
 """
     passive_clusters(m::AbstractDPM)
 
-Return a subset of the passive clusters.
+Return (a subset of) the current set of passive clusters.
 """
-passive_clusters(m::AbstractDPM) = parent(m).P
+passive_clusters(m::AbstractDPM) = passive_clusters(parent_dpm(m))
 
 """
     n_clusters(m::AbstractDPM)
 
-Return the number of active clusters.
+Return the current number of active clusters.
 """
-n_clusters(m::AbstractDPM) = parent(m).K[1]
-
-"""
-    max_cluster_label(m::AbstractDPM)
-
-Return the largest (active) cluster label.
-"""
-max_cluster_label(m::AbstractDPM) = parent(m).Q[1]
+n_clusters(m::AbstractDPM) = n_clusters(parent_dpm(m))
 
 """
     dp_mass(m::AbstractDPM)
 
-Return the DP mass parameter, α.
+Return the current DP mass parameter.
 """
-dp_mass(m::AbstractDPM) = parent(m).α[1]
+dp_mass(m::AbstractDPM) = dp_mass(parent_dpm(m))

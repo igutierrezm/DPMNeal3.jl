@@ -28,7 +28,7 @@ struct NormalDPM <: AbstractDPM
     end
 end
 
-function parent(m::NormalDPM)
+function parent_dpm(m::NormalDPM)
     m.parent
 end
 
@@ -47,9 +47,9 @@ function update_suffstats!(m::NormalDPM, data)
     N = length(data)
     d = cluster_labels(m)
     A = active_clusters(m)
-    Q = max_cluster_label(m)
+    Q = cluster_capacity(m)
     @unpack v0, r0, u0, s0, v1, r1, u1, s1 = m
-    while length(v1) ≤ Q
+    while length(v1) < Q
         add_cluster!(m)
     end
     for k in A
@@ -68,9 +68,9 @@ function update_suffstats!(m::NormalDPM, data)
 end
 
 function update_suffstats!(m::NormalDPM, data, i::Int, k1::Int, k2::Int)
-    Q = max_cluster_label(m)
+    Q = cluster_capacity(m)
     @unpack v1, r1, u1, s1 = m
-    while length(v1) ≤ Q
+    while length(v1) < Q
         add_cluster!(m)
     end
 
