@@ -32,6 +32,9 @@ function parent(m::NormalDPM)
     m.parent
 end
 
+function update_hyperpars!(rng::AbstractRNG, m::NormalDPM, data)
+end
+
 function add_cluster!(m::NormalDPM)
     @unpack v0, r0, u0, s0, v1, r1, u1, s1 = m
     push!(v1, v0)
@@ -64,7 +67,7 @@ function update_suffstats!(m::NormalDPM, data)
     end
 end
 
-function update_suffstats!(m::NormalDPM, data, i, k1, k2)
+function update_suffstats!(m::NormalDPM, data, i::Int, k1::Int, k2::Int)
     Q = max_cluster_label(m)
     @unpack v1, r1, u1, s1 = m
     while length(v1) ≤ Q
@@ -84,7 +87,7 @@ function update_suffstats!(m::NormalDPM, data, i, k1, k2)
     s1[k2] += (r1[k2] / (r1[k2] - 1)) * (data[i] - u1[k2])^2
 end
 
-function logpredlik(m::NormalDPM, data, i, k)
+function logpredlik(m::NormalDPM, data, i::Int, k::Int)
     @unpack v1, r1, u1, s1 = m
     d = cluster_labels(m)
     yi = data[i]

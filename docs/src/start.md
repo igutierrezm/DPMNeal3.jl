@@ -1,59 +1,22 @@
 # Getting Started
 
-## Installation
+## Using a custom DPM
 
-Install with the Julia package manager Pkg:
-
-```julia
-# Press ']' to enter the Pkg REPL mode.
-pkg> add DPMNeal3
-```
-or
-```julia
-julia> using Pkg; 
-julia> Pkg.add("DPMNeal3")
-```
-
-## Initializing a Normal DPM
-
-Let us initialize a Normal DPM for a sample with `N = 1000` observations.
-
-The first step is to set up the environment:
+Let `MyDPM <: AbstractDPM` be a datatype that conforms with the interface defined in this module, and let `m` an object of type `MyDPM`. Then, `m` contains the current state of the chain associated with the Gibbs sampler described in Neal's algorithm 3. Then, we can access the contents of `m` using the following accessors:
 
 ```julia
-julia> using Random, DPMNeal3
-julia> rng = MersenneTwister(1)
+julia> DPMNeal3.n_clusters(m)      # return the number of active clusters
+julia> DPMNeal3.active_clusters(m) # return the active clusters
+julia> DPMNeal3.cluster_labels(m)  # return the cluster labels
+julia> DPMNeal3.cluster_sizes(m)   # return the cluster sizes
+julia> DPMNeal3.dp_mass(m)         # return the DP mass parameter
 ```
 
-Then, we create Normal DPM with `N = 1000` observations using `NormalDPM()`:
+Now, let `MyData <: Any` be the datatype of the sample expected by `MyDPM`, and let `data` an object of type `MyData`. Then, we can perform one Gibbs update using `update!()`:
 
 ```julia
-julia> gb = NormalDPM(rng; N = 1000)
+julia> rng = Random.MersenneTwister(1) # or any AbstractRNG object
+julia> update!(rng, m, data)
 ```
 
-## Performing a Gibbs update
-
-In order to perform a Gibbs update, we need a training sample, e.g.
-
-```julia
-julia> y = randn(N)
-julia> x = ones(N)
-```
-
-Given this sample, we can perform a Gibbs update using `gibbs_update!()`:
-
-```julia
-julia> gibbs_update!(rng, m, y, x)
-```
-
-## Accesing the state of the chain
-
-Once `m` have been updated, we can inspect the current state of the chain using the following accessors:
-
-```julia
-n_clusters(m)      # return the number of active clusters
-active_clusters(m) # return the active clusters
-cluster_labels(m)  # return the cluster labels
-cluster_sizes(m)   # return the cluster sizes
-dp_mass(m)         # return the DP mass parameter
-```
+Note that `data` can have any type, provided that `MyDPM` conforms with the interface.
