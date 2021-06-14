@@ -7,18 +7,18 @@ using Parameters: @unpack
 using Random: AbstractRNG, randperm, randperm!
 export 
     # Types
-    AbstractDPM, GenericDPM,
+    AbstractDPM, BasicDPM,
     # Methods
     update!, cluster_labels, cluster_sizes, n_clusters, dp_mass, 
     active_clusters, passive_clusters, max_cluster_label
 
 """
-    GenericDPM(rng::AbstractRNG, N; K0 = 1, a0 = 2.0, b0 = 4.0)
+    BasicDPM(rng::AbstractRNG, N; K0 = 1, a0 = 2.0, b0 = 4.0)
 
 Initialize a generic DPM with `N` observations, `K0` initial clusters and a 
 `Gamma(a0, b0)` prior distribution for the mass parameter.
 """
-struct GenericDPM
+struct BasicDPM <: AbstractDPM
     N::Int             # sample size
     K::Vector{Int}     # number of clusters
     Q::Vector{Int}     # largest cluster label
@@ -30,7 +30,7 @@ struct GenericDPM
     A::Set{Int}        # active clusters
     a0::Float64        # shape parameter in α's prior
     b0::Float64        # rate parameter in α's prior
-    function GenericDPM(rng::AbstractRNG, N::Int; K0::Int = 1, a0 = 2.0, b0 = 4.0)
+    function BasicDPM(rng::AbstractRNG, N::Int; K0::Int = 1, a0 = 2.0, b0 = 4.0)
         @assert N >= K0
         @assert K0 >= 0
         @assert a0 >= 0
@@ -53,6 +53,7 @@ end
 Return the cluster labels.
 """
 cluster_labels(m::AbstractDPM) = parent(m).d
+cluster_labels(m::BasicDPM) = m.d
 
 """
     cluster_sizes(m::AbstractDPM)
@@ -60,6 +61,7 @@ cluster_labels(m::AbstractDPM) = parent(m).d
 Return the cluster sizes.
 """
 cluster_sizes(m::AbstractDPM) = parent(m).n
+cluster_sizes(m::BasicDPM) = m.n
 
 """
     active_clusters(m::AbstractDPM)
@@ -67,6 +69,7 @@ cluster_sizes(m::AbstractDPM) = parent(m).n
 Return the set of active clusters.
 """
 active_clusters(m::AbstractDPM) = parent(m).A
+active_clusters(m::BasicDPM) = m.A
 
 """
     passive_clusters(m::AbstractDPM)
@@ -74,6 +77,7 @@ active_clusters(m::AbstractDPM) = parent(m).A
 Return a subset of the passive clusters.
 """
 passive_clusters(m::AbstractDPM) = parent(m).P
+passive_clusters(m::BasicDPM) = m.P
 
 """
     n_clusters(m::AbstractDPM)
@@ -81,6 +85,7 @@ passive_clusters(m::AbstractDPM) = parent(m).P
 Return the number of active clusters.
 """
 n_clusters(m::AbstractDPM) = parent(m).K[1]
+n_clusters(m::BasicDPM) = m.K[1]
 
 """
     max_cluster_label(m::AbstractDPM)
@@ -88,6 +93,7 @@ n_clusters(m::AbstractDPM) = parent(m).K[1]
 Return the largest (active) cluster label.
 """
 max_cluster_label(m::AbstractDPM) = parent(m).Q[1]
+max_cluster_label(m::BasicDPM) = m.Q[1]
 
 """
     dp_mass(m::AbstractDPM)
@@ -95,6 +101,7 @@ max_cluster_label(m::AbstractDPM) = parent(m).Q[1]
 Return the DP mass parameter.
 """
 dp_mass(m::AbstractDPM) = parent(m).α[1]
+dp_mass(m::BasicDPM) = m.α[1]
 
 # 3. Interface
 # Any DPM specific block (sb) must implement these functions

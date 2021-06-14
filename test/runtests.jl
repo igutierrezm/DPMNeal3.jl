@@ -13,17 +13,17 @@ struct Data
     data::Vector{Float64}
 end
 
-@testset "GenericDPM" begin
+@testset "BasicDPM" begin
     rng = MersenneTwister(1)
-    @test_throws AssertionError GenericDPM(rng, 10; K0 = 20)
-    @test_throws AssertionError GenericDPM(rng, 10; K0 = -1)
-    @test_throws AssertionError GenericDPM(rng, 10; a0 = -1)
-    @test_throws AssertionError GenericDPM(rng, 10; b0 = -1)
-    @test_throws TypeError      GenericDPM(rng, 10; K0 = .5)
-    @test_throws MethodError    GenericDPM(rng, .5)
+    @test_throws AssertionError BasicDPM(rng, 10; K0 = 20)
+    @test_throws AssertionError BasicDPM(rng, 10; K0 = -1)
+    @test_throws AssertionError BasicDPM(rng, 10; a0 = -1)
+    @test_throws AssertionError BasicDPM(rng, 10; b0 = -1)
+    @test_throws TypeError      BasicDPM(rng, 10; K0 = .5)
+    @test_throws MethodError    BasicDPM(rng, .5)
     N  = 4
     K0 = 2
-    gb = GenericDPM(rng, N; K0 = K0)
+    gb = BasicDPM(rng, N; K0 = K0)
     @test unique(gb.d) == collect(1:K0)
     @test length(gb.d) == N
     @test gb.A == Set(1:K0)
