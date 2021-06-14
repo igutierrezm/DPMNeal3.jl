@@ -1,5 +1,5 @@
 struct NormalDPM <: AbstractDPM
-    parent::BasicDPM
+    parent::DPM
     v0::Float64
     r0::Float64
     u0::Float64
@@ -19,7 +19,7 @@ struct NormalDPM <: AbstractDPM
             u0::Float64 = 0.0, 
             s0::Float64 = 1.0
         )
-        parent = BasicDPM(rng, N; K0, a0, b0)
+        parent = DPM(rng, N; K0, a0, b0)
         v1 = [v0]
         r1 = [r0]
         u1 = [u0]
