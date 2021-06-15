@@ -1,6 +1,6 @@
 # Getting Started
 
-Let `m` be an object of type `MyDPM`, where `MyDPM <: AbstractDPM` is a datatype that conforms with the interface defined in this module. Then, `m` contains the current state of the chain associated with the Gibbs sampler described in Neal's algorithm 3. We can access the contents of `m` using the following accessors:
+Let `m` be an object of type `MyDPM`, where `MyDPM <: AbstractDPM` conforms with the interface defined in this module. Then, `m` contains the current state of the chain associated with the Gibbs sampler described in Neal's algorithm 3. We can access the contents of `m` using the following accessors:
 
 ```julia
 julia> DPMNeal3.n_clusters(m)      # return the number of active clusters
