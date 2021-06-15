@@ -70,6 +70,19 @@ end
     @test m.s1 == [9]
 end
 
+@testset "NormalDPM Accessors" begin
+    rng = MersenneTwister(1)
+    m = NormalDPM(rng, 5; K0 = 5)
+    @test n_clusters(m) == 5
+    @test cluster_capacity(m) == 6
+    @test cluster_labels(m) == collect(1:5)
+    @test cluster_sizes(m) == [ones(Int, 5); 0]
+    @test active_clusters(m) == Set(1:5)
+    @test passive_clusters(m) == Set(6)
+    @test dp_mass(m) < Inf
+    @test dp_mass(m) > 0.0
+end
+
 @testset "update_α!" begin
     rng = MersenneTwister(1)
     m = NormalDPM(rng, 5)
