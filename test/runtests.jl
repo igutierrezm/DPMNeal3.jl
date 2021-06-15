@@ -191,3 +191,15 @@ end
     data = randn(rng, N)
     update!(rng, m, data)
 end
+
+@testset "Check that the interface must be implemented" begin
+    struct MyDPM <: AbstractDPM end
+    rng = MersenneTwister(1)
+    m = MyDPM()
+    data = 1.0
+    @test_throws ErrorException parent_dpm(m)
+    @test_throws ErrorException update_suffstats!(m, data)
+    @test_throws ErrorException update_suffstats!(m, data, 1, 1, 2)
+    @test_throws ErrorException update_hyperpars!(rng, m, data)
+    @test_throws ErrorException logpredlik(m, data, 1, 1)
+end
