@@ -1,4 +1,4 @@
-# Creating new DPM models
+# Creating a DPM
 
 To implement a new DPM, the first step is to define a subtype of `AbstractDPM` that extends the type `DPM` using composition, e.g.
 

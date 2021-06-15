@@ -17,7 +17,7 @@ makedocs(;
         "Home" => "index.md",
         "Installation" => "install.md",
         "Getting Started" => "start.md",
-        "Creating new DPMs" => "create.md",
+        "Creating a DPM" => "create.md",
         "Library" => "library.md",
         "References" => "references.md"
     ],
