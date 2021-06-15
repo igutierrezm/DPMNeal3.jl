@@ -1,6 +1,6 @@
 # Creating a DPM
 
-To implement a new DPM, the first step is to define a subtype of `AbstractDPM` that extends the type `DPM` using composition, e.g.
+The first step is to define a subtype of `AbstractDPM` that extends the type `DPM` using composition, e.g.
 
 ```julia
 struct MyDPM <: AbstractDPM
@@ -11,7 +11,7 @@ end
 
 In this way, all the standard components of the DPM (e.g. the vector of cluster labels) will be stored in `parent`. Please, read carefully the documentation about `DPM` and its constructor/accessors in order to avoid redundancies.
 
-Once `MyDPM` is defined, the last step is to specialize the following methods to `m::MyDPM`:
+Once `MyDPM` is defined, the second and last step is to specialize the following methods to `m::MyDPM`:
 
 ```julia
 parent(m::MyDPM)
