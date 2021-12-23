@@ -10,15 +10,15 @@ end
 
 function update!(m::AbstractModel)
     update_d!(m) # update the cluster labels
-    update_α!(m) # update the mass parameter
-    update_f!(m) # update the (conditional) posterior predictive density
+    # update_α!(m) # update the mass parameter
+    # update_f!(m) # update the (conditional) posterior predictive density
 end
 
 function update_α!(m::AbstractModel)
     (; N, K, α, a_α0, b_α0) = skeleton(m)
     ϕ = rand(Beta(α[] + 1.0, N))
     ψ = 1.0 / (1.0 + N * (b_α0 - log(ϕ)) / (a_α0 + K[] - 1.0))
-    α[] = rand(Gamma(a0 + K[] - (rand() > ψ), 1.0 / (b0 - log(ϕ))))
+    α[] = rand(Gamma(a_α0 + K[] - (rand() > ψ), 1.0 / (b0 - log(ϕ))))
     return nothing
 end
 
@@ -28,7 +28,7 @@ function update_d!(m::AbstractModel)
     for i in randperm!(τ)
         k0 = d[i]
         k1 = first(P)
-        p1 = in_sampple_logpredlik(m, i, k1) +
+        p1 = in_sample_logpredlik(m, i, k1) +
             log(α[]) - log(-log(rand()))
         for k in A
             p = in_sample_logpredlik(m, i, k) + 
@@ -36,6 +36,7 @@ function update_d!(m::AbstractModel)
             p > p1 && (k1 = k; p1 = p)
         end
         if k1 != k0
+            k1 > length(n) && push!(n, 0)
             (n[k0] -= 1) == 0 && (push!(P, k0); pop!(A, k0); K[] -= 1)
             (n[k1] += 1) == 1 && (push!(A, k1); pop!(P, k1); K[] += 1)
             isempty(P) && (push!(n, 0); push!(P, K[] + 1))

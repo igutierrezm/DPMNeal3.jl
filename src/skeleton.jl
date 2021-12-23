@@ -28,7 +28,7 @@ end
 n_clusters(s::Skeleton) = s.K[]
 
 "cluster_sizes(s::Skeleton) - Return the size of each cluster."
-component_sizes(s::Skeleton) = s.n
+cluster_sizes(s::Skeleton) = s.n
 
 "active_clusters(s::Skeleton) - Return the set of active clusters."
 active_clusters(s::Skeleton) = s.A

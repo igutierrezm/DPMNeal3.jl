@@ -1,6 +1,7 @@
 module DPMNeal3
 
 using Distributions
+using Random
 using SpecialFunctions
 
 # All DPM models are subtypes of AbstractModel:
@@ -15,13 +16,8 @@ include("interface.jl")
 # The methods available for any AbstractModel are described here:
 include("methods.jl")
 
-# export 
-#     # Types
-#     AbstractModel, DPM,
-#     # Methods
-#     update!, cluster_labels, cluster_sizes, n_clusters, dp_mass, 
-#     active_clusters, passive_clusters, cluster_capacity,
-#     # Interface
-#     parent_dpm, update_suffstats!, update_hyperpars!, logpredlik
+# The specific models are implemented here:
+include("dpmnormal.jl")
+# include("gpmerlang.jl")
 
 end # module
