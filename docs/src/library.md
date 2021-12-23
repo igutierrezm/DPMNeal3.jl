@@ -21,9 +21,9 @@ dp_mass
 ## Interface
 
 ```@docs
-parent_dpm(::AbstractDPM)
-update_suffstats!(::AbstractDPM, ::Any)
-update_suffstats!(::AbstractDPM, ::Any, ::Int, ::Int, ::Int)
+parent_dpm(::AbstractModel)
+update_suffstats!(::AbstractModel, ::Any)
+update_suffstats!(::AbstractModel, ::Any, ::Int, ::Int, ::Int)
 update_hyperpars!
 logpredlik
 ```

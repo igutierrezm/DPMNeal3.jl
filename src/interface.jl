@@ -1,50 +1,37 @@
-# Any new DPM, say MyDPM <: AbstractDPM, must extend DPM by composition
-# and implement the following methods (with m::AbstractDPM replaced by MyDPM)
-
 """
-    parent_dpm(m::AbstractDPM)
+    Skeleton(m::AbstractModel)
 
-Return the parent DPM.
+Return the model skeleton.
 """
-function parent_dpm(m::AbstractDPM)
+function skeleton(m::AbstractModel)
     error("not implemented")
 end
 
 """
-    logpredlik(m::AbstractDPM, data, i::Int, k::Int)
+    logpredlik(m::AbstractModel, i::Int, k::Int, prediction = false)
 
-Return the log-pdf of the `i`th response at its current value, given the other 
-responses, the other cluster labels, and the own cluster label fixed at `k`. 
-The responses should be present in `data`.
+Return the log-predictive likelihood at the `i`th training outcome, given a 
+cluster label equal to `j`, the other training units, and the other cluster 
+labels. If `prediction == true`, the `i`th prediciton unit is used instead.
 """
-function logpredlik(m::AbstractDPM, data, i::Int, k::Int)
+function logpredlik(m::AbstractModel, i::Int, k::Int, prediction::Bool = false)
     error("not implemented")
 end
 
 """
-    update_hyperpars!(rng::AbstractRNG, m::AbstractDPM, data)
+    update_suffstats!(m::AbstractModel)
 
-Update the kernel hyperparameters in `m`, given the dataset `data`.
+Update the suffstats from scratch.
 """
-function update_hyperpars!(rng::AbstractRNG, m::AbstractDPM, data)
+function update_suffstats!(m::AbstractModel)
     error("not implemented")
 end
 
 """
-    update_suffstats!(m::AbstractDPM, data)
+    update_suffstats!(m::AbstractModel, i::Int, k0::Int, k1::Int)
 
-Update the sufficient statistics in `m` from scratch, given the dataset `data`.
+Update the suffstats after the `i`th cluster label moves from `k0` to `k1`.
 """
-function update_suffstats!(m::AbstractDPM, data)
-    error("not implemented")
-end
-
-"""
-    update_suffstats!(m::AbstractDPM, data, i::Int, k::Int, l::Int)
-
-Update the sufficient statistics in `m` after the `i`th cluster label changes 
-from `k` to `l`, given the dataset `data`.
-"""
-function update_suffstats!(m::AbstractDPM, data, i::Int, k::Int, l::Int)
+function update_suffstats!(m::AbstractModel, i::Int, k::Int, l::Int)
     error("not implemented")
 end

@@ -1,9 +1,9 @@
 # Creating a DPM
 
-The first step is to define a subtype of `AbstractDPM` that extends the type `DPM` using composition, e.g.
+The first step is to define a subtype of `AbstractModel` that extends the type `DPM` using composition, e.g.
 
 ```julia
-struct MyDPM <: AbstractDPM
+struct MyDPM <: AbstractModel
     parent::DPM
     # ... any desired fields
 end
