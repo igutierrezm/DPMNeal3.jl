@@ -24,30 +24,20 @@ Base.@kwdef struct Skeleton
     n::Vector{Int} = [N]           # cluster sizes
 end
 
-"""
-    n(s::Skeleton)
-    
-Return the size of each component.
-"""
-n(s::Skeleton) = s.n
+"n_clusters(s::Skeleton) - Return the number of clusters."
+n_clusters(s::Skeleton) = s.K[]
 
-"""
-    K(s::Skeleton)
-    
-Return the number of clusters.
-"""
-K(s::Skeleton) = s.K[]
+"cluster_sizes(s::Skeleton) - Return the size of each cluster."
+component_sizes(s::Skeleton) = s.n
 
-"""
-    d(s::Skeleton)
-    
-Return the cluster label of each point.
-"""
-d(s::Skeleton) = s.d
+"active_clusters(s::Skeleton) - Return the set of active clusters."
+active_clusters(s::Skeleton) = s.A
 
-"""
-    f(s::Skeleton)
+"passive_clusters(s::Skeleton) - Return the set of passive clusters."
+passive_clusters(s::Skeleton) = s.P
 
-Return the mixture density at each prediction point
-"""
-f(s::Skeleton) = s.f
+"cluster_labels(s::Skeleton) - Return the cluster label of each sample point."
+cluster_labels(s::Skeleton) = s.d
+
+"predictive_pdf(s::Skeleton) - Return the predictive pdf at each grid point."
+predictive_pdf(s::Skeleton) = s.f

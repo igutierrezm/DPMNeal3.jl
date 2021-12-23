@@ -28,9 +28,11 @@ function update_d!(m::AbstractModel)
     for i in randperm!(τ)
         k0 = d[i]
         k1 = first(P)
-        p1 = logpredlik(m, i, k1) + log(α[]) - log(-log(rand()))
+        p1 = in_sampple_logpredlik(m, i, k1) +
+            log(α[]) - log(-log(rand()))
         for k in A
-            p = logpredlik(m, i, k) + log(n[k] - (k == k0)) - log(-log(rand()))
+            p = in_sample_logpredlik(m, i, k) + 
+                log(n[k] - (k == k0)) - log(-log(rand()))
             p > p1 && (k1 = k; p1 = p)
         end
         if k1 != k0
@@ -46,13 +48,13 @@ end
 
 function update_f!(m::AbstractModel)
     (; N, M, α, f, P, A, n) = skeleton(m)
+    α0, k0 = α[], first(P)
     for i in 1:M
-        f[i] = α[] * exp(logpredlik(m, i, first(P), true))
+        f[i] = α0 * exp(out_of_sample_logpredlik(m, i, k0))
         for k in A 
-            f[i] += n[k] * exp(logpredlik(m, i, k, true))
+            f[i] += n[k] * exp(out_of_sample_logpredlik(m, i, k))
         end
-        f[i] = 
-        f[i] /= (N + α[])
+        f[i] /= (N + α0)
     end
     return nothing
 end

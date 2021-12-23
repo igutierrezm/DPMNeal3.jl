@@ -8,13 +8,23 @@ function skeleton(m::AbstractModel)
 end
 
 """
-    logpredlik(m::AbstractModel, i::Int, k::Int, prediction = false)
+    in_sample_logpredlik(m::AbstractModel, i::Int, k::Int)
 
-Return the log-predictive likelihood at the `i`th training outcome, given a 
-cluster label equal to `j`, the other training units, and the other cluster 
-labels. If `prediction == true`, the `i`th prediciton unit is used instead.
+Return the log-predictive likelihood at the `i`th unit in the sample, given a 
+cluster label equal to `j`, and the other responses and cluster labels in the 
+sample.
 """
-function logpredlik(m::AbstractModel, i::Int, k::Int, prediction::Bool = false)
+function in_sample_logpredlik(m::AbstractModel, i::Int, k::Int)
+    error("not implemented")
+end
+
+"""
+out_of_sample_logpredlik(m::AbstractModel, i::Int, k::Int)
+
+Return the log-predictive likelihood at the `i`th out of sample unit, given a 
+cluster label equal to `j`, and the responses and cluster labels in the sample.
+"""
+function out_of_sample_logpredlik(m::AbstractModel, i::Int, k::Int)
     error("not implemented")
 end
 
