@@ -1,24 +1,26 @@
 function sample!(m::AbstractModel; iter = 4000, warmup = 2000, thin = 1)
-    (; M, f) = skeleton(m)
+    (; ỹ, M, f) = skeleton(m)
     fchain = [zeros(M) for _ in 1:(iter - warmup) ÷ thin]
-    for _ in 1:iter
+    for t in 1:iter
         update!(m)
-        fchain .= f
+        if (t > warmup) && ((t - warmup) % thin == 0)
+            fchain[(t - warmup) ÷ thin] .= f
+        end
     end
-    return fchain
+    return ỹ, fchain
 end
 
 function update!(m::AbstractModel)
     update_d!(m) # update the cluster labels
-    # update_α!(m) # update the mass parameter
-    # update_f!(m) # update the (conditional) posterior predictive density
+    update_α!(m) # update the mass parameter
+    update_f!(m) # update the (conditional) posterior predictive density
 end
 
 function update_α!(m::AbstractModel)
     (; N, K, α, a_α0, b_α0) = skeleton(m)
     ϕ = rand(Beta(α[] + 1.0, N))
     ψ = 1.0 / (1.0 + N * (b_α0 - log(ϕ)) / (a_α0 + K[] - 1.0))
-    α[] = rand(Gamma(a_α0 + K[] - (rand() > ψ), 1.0 / (b0 - log(ϕ))))
+    α[] = rand(Gamma(a_α0 + K[] - (rand() > ψ), 1.0 / (b_α0 - log(ϕ))))
     return nothing
 end
 

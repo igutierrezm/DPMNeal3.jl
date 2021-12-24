@@ -1,21 +1,23 @@
 """
-    Skeleton(; N, M; 1_α0 = 2.0, b_α0 = 1.0)
+    Skeleton(; y::Vector{T}, y::Vector{T}, a_α0 = 2.0, b_α0 = 1.0) where T
 
-Initialize a DPM Skeleton with `N` observations for training, `M` observations 
-for prediction, and `Gamma(a_α0, 1 / b_α0)` prior distribution for the DP mass 
-parameter.
+Initialize a DPM Skeleton based on a training sample `y`, a prediction sample 
+`ỹ`, and a `Gamma(a_α0, 1 / b_α0)` prior for the DP mass parameter.
 """
-Base.@kwdef struct Skeleton
+Base.@kwdef struct Skeleton{T}
     # Data
-    N::Int # sample size (training)
-    M::Int # sample size (prediction)
+    y::Vector{T} # training sample 
+    ỹ::Vector{T} # prediction sample
+    # Transformed data
+    N::Int = length(y) # sample size (training)
+    M::Int = length(ỹ) # sample size (prediction)
     # Hyperparameters
     a_α0::Float64 = 1.0 # shape parameter in α's prior
     b_α0::Float64 = 1.0 # rate parameter in α's prior
     # Parameters
     α::Base.RefValue{Float64} = Ref(1.0) # dp mass parameter
     τ::Vector{Int} = collect(1:N)        # sample permutation
-    d::Vector{Int} = ones(N)             # cluster labels
+    d::Vector{Int} = ones(Int, N)        # cluster labels
     # Transformed parameters
     f::Vector{Float64}  = zeros(M) # mixture density
     K::Base.RefValue{Int} = Ref(1) # number of clusters

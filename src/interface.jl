@@ -10,7 +10,7 @@ end
 """
     in_sample_logpredlik(m::AbstractModel, i::Int, k::Int)
 
-Return the log-predictive likelihood at the `i`th unit in the sample, given a 
+Return the log-predictive likelihood at the `i`th in-sample unit, given a 
 cluster label equal to `j`, and the other responses and cluster labels in the 
 sample.
 """
@@ -21,7 +21,7 @@ end
 """
     out_of_sample_logpredlik(m::AbstractModel, i::Int, k::Int)
 
-Return the log-predictive likelihood at the `i`th out of sample unit, given a 
+Return the log-predictive likelihood at the `i`th out-of-sample unit, given a 
 cluster label equal to `j`, and the responses and cluster labels in the sample.
 """
 function out_of_sample_logpredlik(m::AbstractModel, i::Int, k::Int)

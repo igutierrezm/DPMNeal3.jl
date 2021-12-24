@@ -6,7 +6,7 @@ Base.@kwdef struct DPMNormal <: AbstractModel
     # Hyperparameters
     v0::Float64 = 1.0
     r0::Float64 = 1.0
-    u0::Float64 = 1.0
+    u0::Float64 = 0.0
     s0::Float64 = 1.0
     a_α0::Float64 = 1.0
     b_α0::Float64 = 1.0
