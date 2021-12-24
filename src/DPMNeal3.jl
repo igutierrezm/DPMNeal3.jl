@@ -18,6 +18,5 @@ include("methods.jl")
 
 # The specific models are implemented here:
 include("dpmnormal.jl")
-# include("gpmerlang.jl")
 
 end # module
