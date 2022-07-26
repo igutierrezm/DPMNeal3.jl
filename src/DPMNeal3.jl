@@ -1,22 +1,21 @@
 module DPMNeal3
 
-using Distributions
-using Random
-using SpecialFunctions
+using Distributions # Beta
+using Random # randperm!
 
-# All DPM models are subtypes of AbstractModel:
+# All DPM models are subtypes of
 abstract type AbstractModel end
 
-# All subtypes of AbstractModel must extend (by composition) the Skeleton type:
+# All DPM models must extend (by composition) the Skeleton type, defined in
 include("skeleton.jl")
 
-# All subtypes of AbstractModel must implement the following interface:
+# All subtypes of AbstractModel must implement the interface described in
 include("interface.jl")
 
-# The methods available for any AbstractModel are described here:
-include("methods.jl")
+# # The methods available for any AbstractModel are described in
+# include("methods.jl")
 
-# The specific models are implemented here:
-include("dpmnormal.jl")
+# # The specific models are implemented in
+# include("dpmnormal.jl")
 
 end # module

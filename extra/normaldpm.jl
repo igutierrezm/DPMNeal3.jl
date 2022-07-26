@@ -2,21 +2,21 @@ Base.@kwdef struct DPMNormal <: AbstractModel
     # Data
     M::Int = 50
     y::Vector{Float64}
-    ỹ::Vector{Float64} = collect(range(minimum(y), maximum(y), length = M))
+    ygrid::Vector{Float64} = range(minimum(y), maximum(y), length = M)
     # Hyperparameters
     v0::Float64 = 1.0
     r0::Float64 = 1.0
     u0::Float64 = 0.0
     s0::Float64 = 1.0
-    a_α0::Float64 = 1.0
-    b_α0::Float64 = 1.0
+    a0::Float64 = 1.0
+    b0::Float64 = 1.0
     # Transformed parameters
     v1::Vector{Float64} = zeros(1)
     r1::Vector{Float64} = zeros(1)
     u1::Vector{Float64} = zeros(1)
     s1::Vector{Float64} = zeros(1)
     # Skeleton
-    skl::Skeleton = Skeleton(; y, ỹ, a_α0, b_α0)
+    skl::Skeleton = Skeleton(N = length(y), M = length(ygrid); a0, b0)
 end
 
 function skeleton(m::DPMNormal)
@@ -24,8 +24,8 @@ function skeleton(m::DPMNormal)
 end
 
 function out_of_sample_logpredlik(m::DPMNormal, i::Int, k::Int)
-    (; ỹ, v1, r1, u1, s1) = m
-    yi = ỹ[i]
+    (; N, ygrid, v1, r1, u1, s1) = m
+    yi = ygrid[i]
     v̄0 = v1[k]
     r̄0 = r1[k]
     ū0 = u1[k]
@@ -34,11 +34,11 @@ function out_of_sample_logpredlik(m::DPMNormal, i::Int, k::Int)
     r̄1 = r̄0 + 1
     ū1 = (r̄0 * ū0 + yi) / r̄1
     s̄1 = s̄0 + (r̄1 / r̄0) * (yi - ū1)^2
-    return common_logpredlik(v̄0, r̄0, s̄0, v̄1, r̄1, s̄1)
+    return common_logpredlik(v̄0, r̄0, ū0, s̄0, v̄1, r̄1, ū1, s̄1)
 end
 
 function in_sample_logpredlik(m::DPMNormal, i::Int, k::Int)
-    (; y, v1, r1, u1, s1, skl) = m
+    (; N, y, v1, r1, u1, s1, skl) = m
     d = cluster_labels(skl)
     yi = y[i]
     di = d[i]
@@ -61,10 +61,10 @@ function in_sample_logpredlik(m::DPMNormal, i::Int, k::Int)
         ū1 = (r̄0 * ū0 + yi) / r̄1
         s̄1 = s̄0 + (r̄1 / r̄0) * (yi - ū1)^2
     end
-    return common_logpredlik(v̄0, r̄0, s̄0, v̄1, r̄1, s̄1)
+    return common_logpredlik(v̄0, r̄0, ū0, s̄0, v̄1, r̄1, ū1, s̄1)
 end
 
-function common_logpredlik(v̄0, r̄0, s̄0, v̄1, r̄1, s̄1)
+function common_logpredlik(v̄0, r̄0, ū0, s̄0, v̄1, r̄1, ū1, s̄1)
     return (
         0.5v̄0 * log(s̄0) -
         0.5v̄1 * log(s̄1) +
@@ -76,8 +76,7 @@ function common_logpredlik(v̄0, r̄0, s̄0, v̄1, r̄1, s̄1)
 end
 
 function update_suffstats!(m::DPMNormal)
-    (; y, v0, r0, u0, s0, v1, r1, u1, s1, skl) = m
-    N = length(y)
+    (; N, v0, r0, u0, s0, v1, r1, u1, s1, skl) = m
     d = cluster_labels(skl)
     A = active_clusters(skl)
     Q = first(passive_clusters(skl))
@@ -102,7 +101,7 @@ end
 function update_suffstats!(m::DPMNormal, i::Int, k0::Int, k1::Int)
     (; y, v1, r1, u1, s1, skl) = m
     Q = first(passive_clusters(skl))
-    while length(v1) < Q
+    while length(v1) < K0
         add_cluster!(m)
     end
 

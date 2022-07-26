@@ -1,30 +1,12 @@
-function sample!(m::AbstractModel; iter = 4000, warmup = 2000, thin = 1)
-    (; ỹ, M, f) = skeleton(m)
-    fchain = [zeros(M) for _ in 1:(iter - warmup) ÷ thin]
-    for t in 1:iter
-        update!(m)
-        if (t > warmup) && ((t - warmup) % thin == 0)
-            fchain[(t - warmup) ÷ thin] .= f
-        end
-    end
-    return ỹ, fchain
-end
-
-function update!(m::AbstractModel)
-    update_d!(m) # update the cluster labels
-    update_α!(m) # update the mass parameter
-    update_f!(m) # update the (conditional) posterior predictive density
-end
-
-function update_α!(m::AbstractModel)
-    (; N, K, α, a_α0, b_α0) = skeleton(m)
+function update_mass_parameter!(m::AbstractModel)
+    (; N, K, α, a0, b0) = skeleton(m)
     ϕ = rand(Beta(α[] + 1.0, N))
-    ψ = 1.0 / (1.0 + N * (b_α0 - log(ϕ)) / (a_α0 + K[] - 1.0))
-    α[] = rand(Gamma(a_α0 + K[] - (rand() > ψ), 1.0 / (b_α0 - log(ϕ))))
+    ψ = 1.0 / (1.0 + N * (b0 - log(ϕ)) / (a0 + K[] - 1.0))
+    α[] = rand(Gamma(a0 + K[] - (rand() > ψ), 1.0 / (b0 - log(ϕ))))
     return nothing
 end
 
-function update_d!(m::AbstractModel)
+function update_cluster_labels!(m::AbstractModel)
     (; α, τ, d, K, P, A, n) = skeleton(m)
     update_suffstats!(m)
     for i in randperm!(τ)
@@ -45,19 +27,6 @@ function update_d!(m::AbstractModel)
             update_suffstats!(m, i, k0, k1)
             d[i] = k1
         end
-    end
-    return nothing
-end
-
-function update_f!(m::AbstractModel)
-    (; N, M, α, f, P, A, n) = skeleton(m)
-    α0, k0 = α[], first(P)
-    for i in 1:M
-        f[i] = α0 * exp(out_of_sample_logpredlik(m, i, k0))
-        for k in A 
-            f[i] += n[k] * exp(out_of_sample_logpredlik(m, i, k))
-        end
-        f[i] /= (N + α0)
     end
     return nothing
 end
