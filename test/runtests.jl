@@ -4,3 +4,4 @@ using Test
 using Distributions
 
 include("skeleton.jl")
+include("abstractdpm.jl")

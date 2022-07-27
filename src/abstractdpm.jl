@@ -12,9 +12,13 @@ Update the DP mass parameter following Escobar & West (1995).
 """
 function update_mass_parameter!(m::AbstractDPM)::Nothing
     (; N, K, α, a0, b0) = skeleton(m)
-    ϕ = rand(Beta(α[] + 1.0, N))
-    ψ = 1.0 / (1.0 + N * (b0 - log(ϕ)) / (a0 + K[] - 1.0))
-    α[] = rand(Gamma(a0 + K[] - (rand() > ψ), 1.0 / (b0 - log(ϕ))))
+    if N > 0
+        ϕ = rand(Beta(α[] + 1.0, N))
+        ψ = 1.0 / (1.0 + N * (b0 - log(ϕ)) / (a0 + K[] - 1.0))
+        α[] = rand(Gamma(a0 + K[] - (rand() > ψ), 1.0 / (b0 - log(ϕ))))
+    else
+        α[] = rand(Gamma(a0, 1 / b0))
+    end
     return nothing
 end
 
@@ -29,10 +33,10 @@ function update_cluster_indicators!(m::AbstractDPM)::Nothing
     for i in randperm!(τ)
         k0 = d[i]
         k1 = first(P)
-        p1 = in_sample_logpredlik(m, i, k1) +
+        p1 = logpredlik(m, i, k1) +
             log(α[]) - log(-log(rand()))
         for k in A
-            p = in_sample_logpredlik(m, i, k) + 
+            p = logpredlik(m, i, k) + 
                 log(n[k] - (k == k0)) - log(-log(rand()))
             p > p1 && (k1 = k; p1 = p)
         end
