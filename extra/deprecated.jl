@@ -1,4 +1,4 @@
-# function update_f!(m::AbstractModel)
+# function update_f!(m::AbstractDPM)
 #     (; N, M, α, f, P, A, n) = skeleton(m)
 #     α0, k0 = α[], first(P)
 #     for i in 1:M

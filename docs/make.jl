@@ -1,3 +1,4 @@
+push!(LOAD_PATH,"../src/")
 using DPMNeal3
 using Documenter
 
@@ -11,18 +12,19 @@ makedocs(;
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
         canonical="https://igutierrezm.github.io/DPMNeal3.jl",
+        edit_link="main",
         assets=String[],
     ),
     pages=[
         "Home" => "index.md",
         "Installation" => "install.md",
-        "Getting Started" => "start.md",
-        "Creating a DPM" => "create.md",
-        "Library" => "library.md",
-        "References" => "references.md"
+        "The AbstractDPM type" => "abstractdpm.md",
+        "The Skeleton type" => "skeleton.md",
+        "Interface" => "interface.md",
     ],
 )
 
 deploydocs(;
     repo="github.com/igutierrezm/DPMNeal3.jl",
+    devbranch="main",
 )

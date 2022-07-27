@@ -1,4 +1,4 @@
-Base.@kwdef struct DPMNormal <: AbstractModel
+Base.@kwdef struct DPMNormal <: AbstractDPM
     # Data
     M::Int = 50
     y::Vector{Float64}
@@ -39,7 +39,7 @@ end
 
 function in_sample_logpredlik(m::DPMNormal, i::Int, k::Int)
     (; N, y, v1, r1, u1, s1, skl) = m
-    d = cluster_labels(skl)
+    d = cluster_indicators(skl)
     yi = y[i]
     di = d[i]
     if di == k
@@ -77,9 +77,9 @@ end
 
 function update_suffstats!(m::DPMNormal)
     (; N, v0, r0, u0, s0, v1, r1, u1, s1, skl) = m
-    d = cluster_labels(skl)
-    A = active_clusters(skl)
-    Q = first(passive_clusters(skl))
+    d = cluster_indicators(skl)
+    A = active_components(skl)
+    Q = first(passive_components(skl))
     while length(v1) < Q
         add_cluster!(m)
     end
@@ -100,7 +100,7 @@ end
 
 function update_suffstats!(m::DPMNormal, i::Int, k0::Int, k1::Int)
     (; y, v1, r1, u1, s1, skl) = m
-    Q = first(passive_clusters(skl))
+    Q = first(passive_components(skl))
     while length(v1) < K0
         add_cluster!(m)
     end

@@ -97,7 +97,7 @@ using SpecialFunctions: loggamma
 # end
 
 # @testset "DPMNormal - Check that the interface must be implemented" begin
-#     struct MyDPM <: DPMNeal3.AbstractModel end
+#     struct MyDPM <: DPMNeal3.AbstractDPM end
 #     m = MyDPM()
 #     @test_throws ErrorException DPMNeal3.skeleton(m)
 #     @test_throws ErrorException DPMNeal3.update_suffstats!(m)

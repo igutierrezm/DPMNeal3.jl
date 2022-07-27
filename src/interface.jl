@@ -1,37 +1,38 @@
 """
-    skeleton(m::AbstractModel)
+    skeleton(m::AbstractDPM)::Skeleton
 
-Return the model skeleton.
+Return the DPM skeleton.
 """
-function skeleton(m::AbstractModel)
+function skeleton(m::AbstractDPM)::Skeleton
     error("not implemented")
 end
 
 """
-    logpredlik(m::AbstractModel, i::Int, k::Int)
+    logpredlik(m::AbstractDPM, i::Int, k::Int)
 
-Return the log-predictive likelihood at the `i`th in-sample unit, given 
-that its cluster label is equal to `j`, and the other responses and 
-cluster labels in the sample.
+Return the log-predictive likelihood of the `i`th observation at its current
+value, given that its cluster indicator is equal to `k`, and given the other 
+responses and cluster indicators in the sample.
 """
-function logpredlik(m::AbstractModel, i::Int, k::Int)
+function logpredlik(m::AbstractDPM, i::Int, k::Int)
     error("not implemented")
 end
 
 """
-    update_suffstats!(m::AbstractModel)
+    update_suffstats!(m::AbstractDPM)::Nothing
 
-Update the suffstats from scratch.
+Update the sufficient statistics of each component from scratch.
 """
-function update_suffstats!(m::AbstractModel)
+function update_suffstats!(m::AbstractDPM)::Nothing
     error("not implemented")
 end
 
 """
-    update_suffstats!(m::AbstractModel, i::Int, k0::Int, k1::Int)
+    update_suffstats!(m::AbstractDPM, i::Int, k0::Int, k1::Int)::Nothing
 
-Update the suffstats after the `i`th cluster label moves from `k0` to `k1`.
+Update the sufficient statistics of the cluster `k0` and `k1` 
+after the `i`th cluster indicator moves from `k0` to `k1`.
 """
-function update_suffstats!(m::AbstractModel, i::Int, k0::Int, k1::Int)
+function update_suffstats!(m::AbstractDPM, i::Int, k0::Int, k1::Int)::Nothing
     error("not implemented")
 end

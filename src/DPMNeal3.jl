@@ -3,19 +3,16 @@ module DPMNeal3
 using Distributions # Beta
 using Random # randperm!
 
-# All DPM models are subtypes of
-abstract type AbstractModel end
+# We use the abstract type `AbstractDPM` for represeting a general DPM.
+# The `AbstractDPM` type and its mutators are defined here:
+include("abstractdpm.jl")
 
-# All DPM models must extend (by composition) the Skeleton type, defined in
+# We use the concrete type `Skeleton` for represeting a DPM skeleton[^1].
+# The `Skeleton` type, its constructors and accessors and implemented here:
 include("skeleton.jl")
 
-# All subtypes of AbstractModel must implement the interface described in
-include("interface.jl")
-
-# # The methods available for any AbstractModel are described in
-# include("methods.jl")
-
-# # The specific models are implemented in
-# include("dpmnormal.jl")
-
 end # module
+
+# [^1]: 
+# Here, we use the term skeleton to denote all the generic elements of a DPM, 
+# such as the vector of cluster indicators.
