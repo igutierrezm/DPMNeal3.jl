@@ -9,13 +9,19 @@ DPMNeal3.logpredlik(m::DummyDPM, i::Int, k::Int) = 1.0
 
 @testset "update_mass_parameter!" begin
     N = 10
-    dpm = DummyDPM(DPMNeal3.Skeleton(; N))
+    skl = DPMNeal3.Skeleton(; N)
+    dpm = DummyDPM(skl)
     DPMNeal3.update_mass_parameter!(dpm)
     @test dpm.skl.α[] > 0
 end
 
 @testset "update_cluster_indicators!" begin
     N = 10
-    dpm = DummyDPM(DPMNeal3.Skeleton(; N))
+    skl = DPMNeal3.Skeleton(; N)
+    dpm = DummyDPM(skl)
     DPMNeal3.update_cluster_indicators!(dpm)
+    @test Set(unique(skl.d)) == skl.A
+    @test !isempty(skl.P)
+    @test minimum(skl.d) > 0
+    @test isempty(intersect(skl.A, skl.P))
 end
