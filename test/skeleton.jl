@@ -71,3 +71,13 @@ end
     @test DPMNeal3.cluster_indicators(skl) !== d
     @test DPMNeal3.cluster_indicators(skl; make_copy = false) === d
 end
+
+@testset "mass_parameter" begin
+    N = 100
+    α1 = Ref(1.0)
+    α2 = Ref(1)
+    skl = DPMNeal3.Skeleton(; N, α = α1)
+    @test DPMNeal3.mass_parameter(skl) == α1[]
+    @test DPMNeal3.mass_parameter(skl) == skl.α[]
+    @test_throws TypeError DPMNeal3.Skeleton(; N, α = α2)
+end
