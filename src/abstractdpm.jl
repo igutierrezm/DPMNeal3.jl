@@ -12,13 +12,9 @@ Update the DP mass parameter following Escobar & West (1995).
 """
 function update_mass_parameter!(m::AbstractDPM)::Nothing
     (; N, K, α, a0, b0) = skeleton(m)
-    if N > 0
-        ϕ = rand(Beta(α[] + 1.0, N))
-        ψ = 1.0 / (1.0 + N * (b0 - log(ϕ)) / (a0 + K[] - 1.0))
-        α[] = rand(Gamma(a0 + K[] - (rand() > ψ), 1.0 / (b0 - log(ϕ))))
-    else
-        α[] = rand(Gamma(a0, 1 / b0))
-    end
+    ϕ = rand(Beta(α[] + 1.0, N))
+    ψ = 1.0 / (1.0 + N * (b0 - log(ϕ)) / (a0 + K[] - 1.0))
+    α[] = rand(Gamma(a0 + K[] - (rand() > ψ), 1.0 / (b0 - log(ϕ))))
     return nothing
 end
 
